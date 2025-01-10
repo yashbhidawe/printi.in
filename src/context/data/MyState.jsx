@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { fireDB } from "../../firebase/firebaseConfig.jsx";
+import { fireDB } from "../../firebase/FirebaseConfig.jsx";
 import {
   Timestamp,
   addDoc,

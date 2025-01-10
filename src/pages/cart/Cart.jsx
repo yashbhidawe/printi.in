@@ -5,7 +5,7 @@ import { useDispatch } from "react-redux";
 import { deleteFromCart, updateCartQuantity } from "../../redux/cartSlice";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import { fireDB } from "../../firebase/firebaseConfig";
+import { fireDB } from "../../firebase/FirebaseConfig.jsx";
 import { addDoc, collection, getDocs } from "firebase/firestore";
 import MyContext from "../../context/data/MyContext.jsx"; // Ensure exact case match
 

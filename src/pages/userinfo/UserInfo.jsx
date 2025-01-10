@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { doc, getDoc } from "firebase/firestore";
-import { fireDB } from "../../firebase/FirebaseConfig"; // Ensure this path is correct
+import { fireDB } from "../../firebase/FirebaseConfig.jsx"; // Ensure this path is correct
 import Layout from "../../components/layout/Layout";
 import { FaEdit } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
