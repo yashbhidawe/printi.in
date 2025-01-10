@@ -1,10 +1,10 @@
 import React, { useContext, useEffect } from "react";
-import myContext from "../../context/data/myContext";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../../redux/cartSlice";
 import { ToastContainer, toast } from "react-toastify";
+import MyContext from "../../context/data/myContext";
 function ProductCard() {
-  const context = useContext(myContext);
+  const context = useContext(MyContext);
   const {
     product,
     searchKey,

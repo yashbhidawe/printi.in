@@ -1,14 +1,14 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
-import myContext from "../../../context/data/myContext";
 import Layout from "../../../components/layout/Layout";
 import { MdOutlineProductionQuantityLimits } from "react-icons/md";
 import { FaUser, FaCartPlus } from "react-icons/fa";
 import { AiFillShopping, AiFillPlusCircle, AiFillDelete } from "react-icons/ai";
 import { Link } from "react-router-dom";
+import MyContext from "../../../context/data/myContext";
 
 function DashboardTab() {
-  const context = useContext(myContext);
+  const context = useContext(MyContext);
   const { mode, product, edithandle, deleteProduct, order, user } = context;
   let [isOpen, setIsOpen] = useState(false);
 

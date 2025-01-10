@@ -1,8 +1,7 @@
 import React, { useContext } from "react";
-import myContext from "../../context/data/myContext";
-
+import MyContext from "../../context/data/myContext";
 function Filter() {
-  const context = useContext(myContext);
+  const context = useContext(MyContext);
   const {
     mode,
     searchKey,

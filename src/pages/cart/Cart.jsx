@@ -1,5 +1,4 @@
 import React, { useContext, useEffect, useState } from "react";
-import myContext from "../../context/data/myContext";
 import Layout from "../../components/layout/Layout";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
@@ -8,9 +7,10 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { fireDB } from "../../firebase/firebaseConfig";
 import { addDoc, collection, getDocs } from "firebase/firestore";
+import MyContext from "../../context/data/myContext";
 
 function Cart() {
-  const context = useContext(myContext);
+  const context = useContext(MyContext);
   const dispatch = useDispatch();
   const { mode } = context;
   const cartItems = useSelector((state) => state.cart);
