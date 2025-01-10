@@ -1,7 +1,7 @@
 import React from "react";
 import { FaUserTie } from "react-icons/fa";
-import Layout from "../../../components/layout/Layout";
-import DashboardTab from "./DashbordTabs";
+import Layout from "../../../components/layout/Layout.jsx";
+import DashboardTab from "./DashbordTabs.jsx";
 
 export default function Dashboard() {
   const stats = [

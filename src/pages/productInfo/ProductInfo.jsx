@@ -1,11 +1,11 @@
 import React, { useContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import Layout from "../../components/layout/Layout";
+import Layout from "../../components/layout/Layout.jsx";
 import { useParams } from "react-router-dom";
 import { doc, getDoc } from "firebase/firestore";
 import { fireDB } from "../../firebase/FirebaseConfig.jsx";
 import { useDispatch, useSelector } from "react-redux";
-import { addToCart } from "../../redux/cartSlice";
+import { addToCart } from "../../redux/cartSlice.jsx";
 
 function ProductInfo() {
   const [products, setProducts] = useState("");

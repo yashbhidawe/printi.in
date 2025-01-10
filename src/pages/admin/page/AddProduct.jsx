@@ -1,5 +1,5 @@
 import React, { useContext, useEffect } from "react";
-import Layout from "../../../components/layout/Layout";
+import Layout from "../../../components/layout/Layout.jsx";
 import MyContext from "../../../context/data/MyContext.jsx";
 function AddProduct() {
   const context = useContext(MyContext);

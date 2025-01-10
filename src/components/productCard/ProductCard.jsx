@@ -1,6 +1,6 @@
 import React, { useContext, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addToCart } from "../../redux/cartSlice";
+import { addToCart } from "../../redux/cartSlice.jsx";
 import { ToastContainer, toast } from "react-toastify";
 import MyContext from "../../context/data/MyContext.jsx"; // Ensure exact case match
 function ProductCard() {

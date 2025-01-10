@@ -1,21 +1,21 @@
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import Home from "./pages/home/Home";
-import Order from "./pages/order/Order";
-import Cart from "./pages/cart/Cart";
-import Dashboard from "./pages/admin/dashbord/Dashbord";
-import NoPage from "./pages/nopage/NoPage";
-import Login from "./pages/registration/Login";
-import Signup from "./pages/registration/Signup";
-import ProductInfo from "./pages/productInfo/ProductInfo";
-import AddProduct from "./pages/admin/page/AddProduct";
-import UpdateProduct from "./pages/admin/page/UpdateProduct";
-import UserInfo from "./pages/userinfo/UserInfo";
-import EditUserInfo from "./pages/userinfo/EditUserInfo";
-import MyState from "./context/data/MyState";
-import ProtectedRoute from "./components/protectedRoute/ProtectedRoute";
+import Home from "./pages/home/Home.jsx";
+import Order from "./pages/order/Order.jsx";
+import Cart from "./pages/cart/Cart.jsx";
+import Dashboard from "./pages/admin/dashbord/Dashbord.jsx";
+import NoPage from "./pages/nopage/NoPage.jsx";
+import Login from "./pages/registration/Login.jsx";
+import Signup from "./pages/registration/Signup.jsx";
+import ProductInfo from "./pages/productInfo/ProductInfo.jsx";
+import AddProduct from "./pages/admin/page/AddProduct.jsx";
+import UpdateProduct from "./pages/admin/page/UpdateProduct.jsx";
+import UserInfo from "./pages/userinfo/UserInfo.jsx";
+import EditUserInfo from "./pages/userinfo/EditUserInfo.jsx";
+import MyState from "./context/data/MyState.jsx";
+import ProtectedRoute from "./components/protectedRoute/ProtectedRoute.jsx";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import Allproducts from "./pages/allproducts/AllProducts";
+import Allproducts from "./pages/allproducts/AllProducts.jsx";
 import { FaWhatsapp } from "react-icons/fa";
 
 function App() {
