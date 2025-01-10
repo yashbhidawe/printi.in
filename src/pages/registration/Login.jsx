@@ -8,10 +8,10 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
 } from "firebase/auth";
-import { auth, fireDB } from "../../firebase/FirebaseConfig";
+import { auth, fireDB } from "../../firebase/FirebaseConfig.jsx";
 import { toast, ToastContainer } from "react-toastify";
 import { MdPadding } from "react-icons/md";
-import MyContext from "../../context/data/myContext";
+
 import { collection } from "firebase/firestore";
 import { setDoc, getDoc, doc } from "firebase/firestore";
 const googleProvider = new GoogleAuthProvider();
