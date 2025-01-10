@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import Layout from "../../components/layout/Layout";
-import MyContext from "../../context/data/myContext";
 import { useParams } from "react-router-dom";
 import { doc, getDoc } from "firebase/firestore";
 import { fireDB } from "../../firebase/firebaseConfig";
@@ -9,8 +8,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../../redux/cartSlice";
 
 function ProductInfo() {
-  const context = useContext(MyContext);
-
   const [products, setProducts] = useState("");
   const params = useParams();
 

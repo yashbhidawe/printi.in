@@ -1,5 +1,4 @@
 import React, { Fragment, useContext, useState } from "react";
-import MyContext from "../../context/data/myContext";
 import { Dialog, Transition } from "@headlessui/react";
 import { Link, Navigate } from "react-router-dom";
 import { FiSun } from "react-icons/fi";
@@ -8,7 +7,6 @@ import { RxCross2 } from "react-icons/rx";
 import { useSelector } from "react-redux";
 import SearchBar from "../search/SearchBar";
 function Navbar() {
-  const context = useContext(MyContext);
   const [open, setOpen] = useState(false);
 
   const user = JSON.parse(localStorage.getItem("user"));
