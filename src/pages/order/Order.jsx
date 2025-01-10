@@ -1,13 +1,13 @@
 import React, { useContext } from "react";
-import myContext from "../../context/data/myContext";
 import Layout from "../../components/layout/Layout";
+import MyContext from "../../context/data/myContext";
 import Loader from "../../components/loader/Loader";
 import { FaBoxOpen } from "react-icons/fa"; // Add this import for the icon
 
 function Order() {
   const user = JSON.parse(localStorage.getItem("user"));
   const userid = user ? user.uid : null;
-  const context = useContext(myContext);
+  const context = useContext(MyContext);
   const { order } = context;
 
   if (!userid) {
