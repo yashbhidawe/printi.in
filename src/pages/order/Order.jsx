@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import Layout from "../../components/layout/Layout";
-import MyContext from "../../context/data/myContext";
+import MyContext from "../../context/data/MyContext.jsx";
 import Loader from "../../components/loader/Loader";
 import { FaBoxOpen } from "react-icons/fa"; // Add this import for the icon
 

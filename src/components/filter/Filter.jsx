@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import MyContext from "../../context/data/myContext";
+import MyContext from "../../context/data/MyContext.jsx"; // Ensure exact case match
 function Filter() {
   const context = useContext(MyContext);
   const {

@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import MyContext from "../../context/data/myContext";
+import MyContext from "../../context/data/MyContext.jsx";
 MyContext;
 function SearchBar() {
   const context = useContext(MyContext);

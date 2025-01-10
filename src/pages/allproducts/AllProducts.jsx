@@ -4,7 +4,7 @@ import Layout from "../../components/layout/Layout";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../../redux/cartSlice";
 import { ToastContainer, toast } from "react-toastify";
-import MyContext from "../../context/data/myContext";
+import MyContext from "../../context/data/MyContext.jsx"; // Ensure exact case match
 
 function AllProducts() {
   const context = useContext(MyContext);

@@ -5,7 +5,7 @@ import { MdOutlineProductionQuantityLimits } from "react-icons/md";
 import { FaUser, FaCartPlus } from "react-icons/fa";
 import { AiFillShopping, AiFillPlusCircle, AiFillDelete } from "react-icons/ai";
 import { Link } from "react-router-dom";
-import MyContext from "../../../context/data/myContext";
+import MyContext from "../../../context/data/MyContext.jsx";
 
 function DashboardTab() {
   const context = useContext(MyContext);
