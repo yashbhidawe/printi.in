@@ -13,7 +13,7 @@ import {
   getDocs,
 } from "firebase/firestore";
 import { toast } from "react-toastify";
-import MyContext from "./myContext";
+import MyContext from "./MyContext.jsx";
 
 function MyState(props) {
   const [products, setProducts] = useState({
