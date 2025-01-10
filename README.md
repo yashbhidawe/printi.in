@@ -1,4 +1,5 @@
 
+
 ---
 
 # printi.in 
@@ -53,11 +54,10 @@ ImageGalaxy aims to provide users with an easy-to-use platform to create custom 
    npm install
    ```
 
-3. Create a `.env` file in the root directory and add your environment variables (see below).
+3. Create a `.env` file in the root directory and add your environment variables.
 
 ### Environment Variables
-Ensure you have the following variables in your `.env` file:
-
+Ensure you have the necessary keys in your `.env` file:
 ```env
 VITE_FIREBASE_API_KEY=your_firebase_api_key
 VITE_FIREBASE_AUTH_DOMAIN=your_firebase_auth_domain
@@ -66,8 +66,8 @@ VITE_FIREBASE_STORAGE_BUCKET=your_firebase_storage_bucket
 VITE_FIREBASE_MESSAGING_SENDER_ID=your_firebase_messaging_sender_id
 VITE_FIREBASE_APP_ID=your_firebase_app_id
 VITE_FIREBASE_MEASUREMENT_ID=your_firebase_measurement_id
-VITE_RAZORPAY_KEY=rzp_test_f827KTjFwmg1YI
-VITE_RAZORPAY_KEY_SECRET=bIWsTyPKSNoHuAIqPsjOigWT
+VITE_RAZORPAY_KEY=your_razorpay_key
+VITE_RAZORPAY_KEY_SECRET=your_razorpay_key_secret
 ```
 
 ### Running Locally
@@ -110,6 +110,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 For any questions or feedback, feel free to reach out to us at contact@printi.in.
 
 ---
-
-Here's the updated README! 🚀✨ You can customize it further to suit your specific needs.
 
