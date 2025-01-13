@@ -81,20 +81,24 @@ function Navbar() {
                       ""
                     )}
                   </div>
-                  <Link to="/userinfo">
-                    <div>
-                      <img
-                        src={user?.photoURL}
-                        className="w-12 h-12 rounded-full hover:cursor-pointer"
-                      />
-                    </div>
-                  </Link>
+                  {user ? (
+                    <Link to="/userinfo">
+                      <div>
+                        <img
+                          src={user?.photoURL}
+                          className="w-12 h-12 rounded-full hover:cursor-pointer"
+                        />
+                      </div>
+                    </Link>
+                  ) : (
+                    ""
+                  )}
                   <div className="flow-root">
                     <a
                       className="-m-2 block p-2 font-medium text-gray-900 cursor-pointer"
                       onClick={logOut}
                     >
-                      Logout
+                      {user ? "Logout" : "Login"}
                     </a>
                   </div>
                 </div>
@@ -174,19 +178,23 @@ function Navbar() {
                   ) : (
                     ""
                   )}
-                  <Link to="/userinfo">
-                    <div>
-                      <img
-                        src={user?.photoURL}
-                        className="w-8 h-8 rounded-full hover:cursor-pointer"
-                      />
-                    </div>
-                  </Link>
+                  {user ? (
+                    <Link to="/userinfo">
+                      <div>
+                        <img
+                          src={user?.photoURL}
+                          className="w-8 h-8 rounded-full hover:cursor-pointer"
+                        />
+                      </div>
+                    </Link>
+                  ) : (
+                    ""
+                  )}
                   <a
                     className="text-sm font-medium text-gray-700 cursor-pointer  "
                     onClick={logOut}
                   >
-                    Logout
+                    {user ? "Logout" : "Login"}
                   </a>
                 </div>
 

@@ -116,7 +116,7 @@ const UserInfo = () => {
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm font-medium text-gray-700">
-                Postal Code:
+                PIN Code:
               </span>
               <span className="text-lg text-gray-900">
                 {userInfo.postalCode

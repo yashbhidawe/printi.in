@@ -1,43 +1,45 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../../firebase/FirebaseConfig.jsx";
+import { toast } from "react-toastify";
 
 function Signup() {
-  const [phoneNumber, setPhoneNumber] = useState(""); // Phone number state
-  const [otp, setOtp] = useState(""); // OTP state
-  const [isOtpSent, setIsOtpSent] = useState(false); // State to track if OTP is sent
-  const [isOtpVerified, setIsOtpVerified] = useState(false); // State to track if OTP is verified
+  const [email, setEmail] = useState(""); // Email state
+  const [password, setPassword] = useState(""); // Password state
   const [showPassword, setShowPassword] = useState(false); // Password visibility state
+  const navigate = useNavigate();
 
-  const handlePhoneNumberChange = (e) => {
-    setPhoneNumber(e.target.value);
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value);
   };
 
-  const handleOtpChange = (e) => {
-    setOtp(e.target.value);
-  };
-
-  const handleSendOtp = () => {
-    // Implement OTP sending logic (e.g., make an API call)
-    console.log("Sending OTP to:", phoneNumber);
-    setIsOtpSent(true);
-  };
-
-  const handleVerifyOtp = () => {
-    // Implement OTP verification logic (e.g., make an API call)
-    console.log("Verifying OTP:", otp);
-    setIsOtpVerified(true); // For now, assume OTP is always verified successfully
+  const handlePasswordChange = (e) => {
+    setPassword(e.target.value);
   };
 
   const togglePasswordVisibility = () => {
     setShowPassword((prev) => !prev);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (isOtpVerified) {
-      // Proceed with signup logic after OTP verification
-      console.log("OTP Verified. Proceeding with signup...");
-      // Add signup logic here (e.g., API call for signup)
+    try {
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCredential.user;
+      toast.success("Account created successfully", {
+        position: "bottom-right",
+      });
+      navigate("/dashboard");
+    } catch (error) {
+      toast.error("Failed to create account. Please try again", {
+        position: "bottom-right",
+      });
+      console.error("Signup error:", error);
     }
   };
 
@@ -49,72 +51,46 @@ function Signup() {
           Signup
         </h1>
 
-        {/* Phone Number Input */}
-        {!isOtpSent ? (
+        {/* Signup Form */}
+        <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <input
-              type="tel"
-              name="phoneNumber"
-              value={phoneNumber}
-              onChange={handlePhoneNumberChange}
+              type="email"
+              value={email}
+              onChange={handleEmailChange}
               className="bg-inputBackground text-textDark placeholder-gray-400 px-4 py-2 w-full rounded-lg focus:ring-2 focus:ring-primaryLight outline-none transition"
-              placeholder="Enter your phone number"
-              maxLength="10"
+              placeholder="Enter your email"
+              required
             />
-            <button
-              onClick={handleSendOtp}
-              className="bg-primary text-textLight font-bold px-6 py-2 w-full rounded-lg hover:bg-primaryLight focus:ring-2 focus:ring-bgPrimary transition mt-4"
-            >
-              Send OTP
-            </button>
           </div>
-        ) : !isOtpVerified ? (
-          <div className="mb-4">
+          <div className="relative mb-4">
             <input
-              type="text"
-              name="otp"
-              value={otp}
-              onChange={handleOtpChange}
+              type={showPassword ? "text" : "password"}
+              value={password}
+              onChange={handlePasswordChange}
               className="bg-inputBackground text-textLight placeholder-gray-400 px-4 py-2 w-full rounded-lg focus:ring-2 focus:ring-primaryLight outline-none transition"
-              placeholder="Enter OTP"
+              placeholder="Create a password"
+              required
             />
             <button
-              onClick={handleVerifyOtp}
-              className="bg-primary text-textLight font-bold px-6 py-2 w-full rounded-lg hover:bg-primaryLight focus:ring-2 focus:ring-bgPrimary transition mt-4"
+              type="button"
+              onClick={togglePasswordVisibility}
+              className="absolute inset-y-0 right-3 text-gray-400 hover:text-primaryLight focus:outline-none"
             >
-              Verify OTP
+              {showPassword ? "Hide" : "Show"}
             </button>
           </div>
-        ) : (
-          <div>
-            {/* After OTP is verified, show password input */}
-            <div className="relative mb-6">
-              <input
-                type={showPassword ? "text" : "password"}
-                name="password"
-                className="bg-inputBackground text-textLight placeholder-gray-400 px-4 py-2 w-full rounded-lg focus:ring-2 focus:ring-primaryLight outline-none transition"
-                placeholder="Create a password"
-              />
-              <button
-                type="button"
-                className="absolute inset-y-0 right-3 text-gray-400 hover:text-primaryLight focus:outline-none"
-                onClick={togglePasswordVisibility}
-              >
-                {showPassword ? "Hide" : "Show"}
-              </button>
-            </div>
 
-            {/* Signup Button */}
-            <div className="flex justify-center mb-4">
-              <button
-                onClick={handleSubmit}
-                className="bg-primary text-textLight font-bold px-6 py-2 w-full rounded-lg hover:bg-primaryLight focus:ring-2 focus:ring-bgPrimary transition"
-              >
-                Signup
-              </button>
-            </div>
+          {/* Signup Button */}
+          <div className="flex justify-center mb-4">
+            <button
+              type="submit"
+              className="bg-primary text-textLight font-bold px-6 py-2 w-full rounded-lg hover:bg-primaryLight focus:ring-2 focus:ring-bgPrimary transition"
+            >
+              Signup
+            </button>
           </div>
-        )}
+        </form>
 
         {/* Login Link */}
         <div className="text-center">

@@ -17,6 +17,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Allproducts from "./pages/allproducts/AllProducts.jsx";
 import { FaWhatsapp } from "react-icons/fa";
+import ResetPassword from "./pages/registration/ResetPassword.jsx";
 
 function App() {
   return (
@@ -41,6 +42,7 @@ function App() {
           <Route path="/edituserinfo" element={<EditUserInfo />} />
           <Route path="/userinfo" element={<UserInfo />} />
           <Route path="/allproducts" element={<Allproducts />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route
             path="/addProduct"
             element={
@@ -59,7 +61,16 @@ function App() {
           />
           <Route path="/productInfo/:id" element={<ProductInfo />} />
         </Routes>
-        <ToastContainer />
+        <ToastContainer
+          position="bottom-right"
+          autoClose={700}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          draggable
+          pauseOnHover
+        />{" "}
       </Router>
       <div className="fixed bottom-8 right-8 bg-green-500 text-white rounded-full p-4 cursor-pointer shadow-lg transition transform hover:scale-105">
         <a

@@ -26,14 +26,16 @@ function ProductCard() {
   }, cartItems);
   return (
     <section className="text-gray-600 body-font bg-bgLight">
+      {" "}
       <div className="container px-5 py-8 md:py-16 mx-auto">
+        {" "}
         <div className="lg:w-1/2 w-full mb-6 lg:mb-10">
+          {" "}
           <h1 className="sm:text-3xl text-2xl font-medium title-font mb-2 text-textDark">
             Our Latest Collection
           </h1>
           <div className="h-1 w-20 bg-primaryLight rounded"></div>
         </div>
-
         {/* Products Grid */}
         <div className="container mx-auto md:px-4 px-2 py-8">
           <div className="grid grid-cols-1  md:gap-8 md:grid-cols-3 lg:grid-cols-4 gap-4">

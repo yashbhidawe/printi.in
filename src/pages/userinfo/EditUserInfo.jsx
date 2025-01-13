@@ -189,7 +189,7 @@ const EditUserInfo = () => {
         </div>
         <div className="space-y-2">
           <label className="block text-sm font-medium text-gray-700">
-            Postal Code:
+            PIN Code:
           </label>
           <input
             type="text"

@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
+import BillGeneration from "../../components/billgeneration/BillGeneration.jsx";
 import Layout from "../../components/layout/Layout.jsx";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
@@ -8,13 +9,14 @@ import { useNavigate } from "react-router-dom";
 import { fireDB } from "../../firebase/FirebaseConfig.jsx";
 import { addDoc, collection, getDocs } from "firebase/firestore";
 import MyContext from "../../context/data/MyContext.jsx"; // Ensure exact case match
-
+import { v4 as uuidv4 } from "uuid";
 function Cart() {
   const context = useContext(MyContext);
   const dispatch = useDispatch();
   const { mode } = context;
   const cartItems = useSelector((state) => state.cart);
   const [totalAmount, setTotalAmount] = useState(0);
+  const [orderId, setOrderId] = useState(null);
   const navigate = useNavigate();
   const [userInfo, setUserInfo] = useState({
     displayName: "",
@@ -30,7 +32,7 @@ function Cart() {
   useEffect(() => {
     let temp = 0;
     cartItems.forEach((cartItem) => {
-      temp += parseInt(cartItem.price) * cartItem.quantity; // Multiply by quantity
+      temp += parseInt(cartItem.price) * parseInt(cartItem.quantity); // Multiply by quantity
     });
     setTotalAmount(temp);
   }, [cartItems]);
@@ -51,6 +53,13 @@ function Cart() {
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cartItems));
   }, [cartItems]);
+  useEffect(() => {
+    const fetchLatestOrderId = () => {
+      const latestOrderId = localStorage.getItem("latestOrderId");
+      setOrderId(latestOrderId);
+    };
+    fetchLatestOrderId();
+  }, []);
 
   const getUserFromLocalStorage = () => {
     const user = localStorage.getItem("user");
@@ -69,7 +78,9 @@ function Cart() {
   useEffect(() => {
     isAddressEmpty();
   }, []);
-
+  const generateOrderId = () => {
+    return uuidv4();
+  };
   const buyNow = async () => {
     if (isAddressEmpty()) {
       toast.error("Please add address to proceed further");
@@ -77,7 +88,7 @@ function Cart() {
         window.location.href = "/edituserinfo";
         console.log("Redirecting to edituserinfo");
       }, 100);
-      return; // Ensure the function exits here
+      return;
     }
 
     const user = JSON.parse(localStorage.getItem("user"));
@@ -93,6 +104,8 @@ function Cart() {
       }),
     };
 
+    const orderId = generateOrderId();
+
     const options = {
       key: import.meta.env.VITE_RAZORPAY_KEY,
       key_secret: import.meta.env.VITE_RAZORPAY_KEY_SECRET,
@@ -107,6 +120,7 @@ function Cart() {
         const paymentId = response.razorpay_payment_id;
 
         const orderInfo = {
+          orderId,
           cartItems,
           addressInfo,
           date: new Date().toLocaleString("en-US", {
@@ -120,8 +134,9 @@ function Cart() {
         };
 
         try {
-          const orderRef = collection(fireDB, "order");
+          const orderRef = collection(fireDB, "orders");
           await addDoc(orderRef, orderInfo);
+          localStorage.setItem("latestOrderId", orderId); // Ensure this line executes successfully
         } catch (error) {
           console.error("Error adding order to Firestore:", error);
         }
@@ -137,7 +152,7 @@ function Cart() {
 
   return (
     <Layout>
-      <div className="h-screen bg-bgLight pt-5">
+      <div className="h-screen bg-bgLight pt-5 pb-5 mb-5">
         <h1 className="mb-10 text-center text-2xl font-bold text-primary">
           Cart Items
         </h1>
@@ -267,13 +282,14 @@ function Cart() {
             </div>
             <button
               type="button"
-              className="w-full bg-primary hover:bg-primaryLight py-2 text-center rounded-lg text-white font-bold"
+              className="w-full bg-primary hover:bg-primaryLight lg:py-2 text-center rounded-lg text-white font-bold"
               onClick={buyNow}
             >
               Buy Now
             </button>
           </div>
         </div>
+        {/*<BillGeneration orderId={orderId} />*/}
       </div>
     </Layout>
   );

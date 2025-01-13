@@ -12,7 +12,7 @@
     "indexes": "firestore.indexes.json"
   },
   "hosting": {
-    "public": "public",
+    "public": "dist",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "rewrites": [
       {
@@ -35,9 +35,7 @@
         "firebase-debug.*.log",
         "*.local"
       ],
-      "predeploy": [
-        // "npm --prefix \"$RESOURCE_DIR\" run lint"
-      ]
+      "predeploy": ["cd \"functions\" && npm install && npm run build"]
     }
   ]
 }
