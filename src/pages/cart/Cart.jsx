@@ -282,7 +282,7 @@ function Cart() {
             </div>
             <button
               type="button"
-              className="w-full bg-primary hover:bg-primaryLight lg:py-2 text-center rounded-lg text-white font-bold"
+              className="w-full bg-primary hover:bg-primaryLight  text-center rounded-lg text-white font-bold mb-4 mt-4 px-2 py-3"
               onClick={buyNow}
             >
               Buy Now

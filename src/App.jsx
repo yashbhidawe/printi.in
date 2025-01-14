@@ -18,6 +18,7 @@ import "react-toastify/dist/ReactToastify.css";
 import Allproducts from "./pages/allproducts/AllProducts.jsx";
 import { FaWhatsapp } from "react-icons/fa";
 import ResetPassword from "./pages/registration/ResetPassword.jsx";
+import Category from "./pages/category/Category.jsx";
 
 function App() {
   return (
@@ -60,6 +61,7 @@ function App() {
             }
           />
           <Route path="/productInfo/:id" element={<ProductInfo />} />
+          <Route path="/category/:category" element={<Category />} />
         </Routes>
         <ToastContainer
           position="bottom-right"

@@ -5,7 +5,7 @@ import { FiSun } from "react-icons/fi";
 import { BsFillCloudSunFill } from "react-icons/bs";
 import { RxCross2 } from "react-icons/rx";
 import { useSelector } from "react-redux";
-import SearchBar from "../search/SearchBar.jsx";
+import SearchAndDisplay from "../search/SearchAndDisplay";
 function Navbar() {
   const [open, setOpen] = useState(false);
 
@@ -152,7 +152,7 @@ function Navbar() {
 
               <div className="ml-auto flex gap-5 items-center">
                 <div className="">
-                  <SearchBar />
+                  <SearchAndDisplay />
                 </div>
                 <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6">
                   <Link
