@@ -19,6 +19,8 @@ import Allproducts from "./pages/allproducts/AllProducts.jsx";
 import { FaWhatsapp } from "react-icons/fa";
 import ResetPassword from "./pages/registration/ResetPassword.jsx";
 import Category from "./pages/category/Category.jsx";
+import Checkout from "./pages/checkout/Checkout.jsx";
+import Customization from "./pages/customization/Customization.jsx";
 
 function App() {
   return (
@@ -44,6 +46,8 @@ function App() {
           <Route path="/userinfo" element={<UserInfo />} />
           <Route path="/allproducts" element={<Allproducts />} />
           <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/customization" element={<Customization />} />
           <Route
             path="/addProduct"
             element={

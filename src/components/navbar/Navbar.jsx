@@ -101,6 +101,13 @@ function Navbar() {
                       {user ? "Logout" : "Login"}
                     </a>
                   </div>
+                  <div>
+                    <Link to="/customization">
+                      <div className="px-6 py-3 text-white font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-lg shadow-lg hover:scale-105 hover:shadow-xl transition-transform duration-300 ease-in-out text-center uppercase tracking-wide">
+                        Customize your order
+                      </div>
+                    </Link>
+                  </div>
                 </div>
               </Dialog.Panel>
             </Transition.Child>
@@ -150,7 +157,14 @@ function Navbar() {
                 </Link>
               </div>
 
-              <div className="ml-auto flex gap-5 items-center">
+              <div className="ml-auto flex gap-5 items-center ">
+                <div className="hidden md:flex">
+                  <Link to="/customization">
+                    <div className="px-6 py-3 text-white font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-lg shadow-lg hover:scale-105 hover:shadow-xl transition-transform duration-300 ease-in-out text-center uppercase tracking-wide">
+                      Customize your order
+                    </div>
+                  </Link>
+                </div>
                 <div className="">
                   <SearchAndDisplay />
                 </div>

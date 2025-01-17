@@ -68,7 +68,7 @@ function Signup() {
               type={showPassword ? "text" : "password"}
               value={password}
               onChange={handlePasswordChange}
-              className="bg-inputBackground text-textLight placeholder-gray-400 px-4 py-2 w-full rounded-lg focus:ring-2 focus:ring-primaryLight outline-none transition"
+              className="bg-inputBackground text-black placeholder-gray-400 px-4 py-2 w-full rounded-lg focus:ring-2 focus:ring-primary outline-primary"
               placeholder="Create a password"
               required
             />
