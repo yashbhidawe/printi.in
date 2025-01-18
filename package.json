@@ -6,19 +6,24 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "lint": "eslint . --fix",
+    "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
     "@cloudinary/url-gen": "^1.21.0",
     "@firebasegen/default-connector": "file:dataconnect-generated/js/default-connector",
     "@headlessui/react": "^2.2.0",
+    "@material-tailwind/react": "^2.1.10",
     "@reduxjs/toolkit": "^2.5.0",
     "axios": "^1.7.9",
+    "class-variance-authority": "^0.7.1",
     "cloudinary-react": "^1.8.1",
+    "clsx": "^2.1.1",
     "fabric": "^6.5.4",
     "firebase": "^11.1.0",
     "jspdf": "^2.5.2",
+    "jspdf-autotable": "^3.8.4",
+    "lucide-react": "^0.473.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-icons": "^5.4.0",
@@ -27,6 +32,8 @@
     "react-router-dom": "^7.1.1",
     "react-tabs": "^6.1.0",
     "react-toastify": "^11.0.2",
+    "tailwind-merge": "^2.6.0",
+    "tailwindcss-animate": "^1.0.7",
     "uuid": "^11.0.5"
   },
   "devDependencies": {

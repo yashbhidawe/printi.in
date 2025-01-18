@@ -11,16 +11,21 @@ function Footer() {
               <span className="text-accent">printi</span>
             </div>
             <div className="flex flex-col space-y-2">
-              <a href="#home" className="hover:text-accent">
+              <a href="/" className="hover:text-accent">
                 Home
               </a>
-              <a href="#products" className="hover:text-accent">
+              <a href="allproducts" className="hover:text-accent">
                 Products
               </a>
-              <a href="#about" className="hover:text-accent">
+              <a href="about-us" className="hover:text-accent">
                 About Us
               </a>
-              <a href="#contact" className="hover:text-accent">
+              <a
+                href="https://wa.me/918007800493"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-accent"
+              >
                 Contact
               </a>
             </div>
@@ -30,7 +35,7 @@ function Footer() {
           <div className="flex flex-col md:w-1/3 space-y-4">
             <div className="text-lg font-semibold">Quick Links</div>
             <div className="flex flex-col space-y-2">
-              <a href="#faq" className="hover:text-accent">
+              <a href="" className="hover:text-accent">
                 FAQ
               </a>
               <a href="#shipping" className="hover:text-accent">
@@ -66,7 +71,7 @@ function Footer() {
         <div className="mt-12 flex justify-center">
           <div className="bg-bgSecondary p-8 rounded-lg shadow-md text-center w-full md:w-1/2">
             <h2 className="text-xl font-semibold mb-4 text-textDark">
-              Stay Updated with InstaPrints
+              Stay Updated with printi.in
             </h2>
             <p className="text-sm mb-4 text-textDark">
               Subscribe to our newsletter for the latest products, offers, and

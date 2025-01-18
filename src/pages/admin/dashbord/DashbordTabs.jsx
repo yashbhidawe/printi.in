@@ -6,11 +6,29 @@ import { FaUser, FaCartPlus } from "react-icons/fa";
 import { AiFillShopping, AiFillPlusCircle, AiFillDelete } from "react-icons/ai";
 import { Link } from "react-router-dom";
 import MyContext from "../../../context/data/MyContext.jsx";
-
+import { getDoc, doc, setDoc } from "firebase/firestore";
+import { fireDB } from "../../../firebase/FirebaseConfig.jsx";
 function DashboardTab() {
   const context = useContext(MyContext);
-  const { mode, product, edithandle, deleteProduct, order, user } = context;
+  const { mode, product, edithandle, deleteProduct, user } = context;
+  const { order, setOrder } = useContext(MyContext);
+  const [loading, setLoading] = useState(false);
+  const handleStatusChange = async (index, status) => {
+    const updatedOrder = [...order];
+    updatedOrder[index].status = status;
+    setOrder(updatedOrder);
+    setLoading(true);
+    try {
+      const orderDoc = doc(fireDB, "orders", updatedOrder[index].id);
+      await setDoc(orderDoc, { ...updatedOrder[index], status });
+      setLoading(false);
+    } catch (error) {
+      console.error("Error updating order status:", error);
+      setLoading(false);
+    }
+  };
   let [isOpen, setIsOpen] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState("");
 
   function closeModal() {
     setIsOpen(false);
@@ -19,6 +37,8 @@ function DashboardTab() {
   function openModal() {
     setIsOpen(true);
   }
+  const orderStatuses = ["Pending", "Processing", "Shipped", "Delivered"]; // Example statuses
+
   return (
     <div>
       <div className="container mx-auto">
@@ -119,7 +139,7 @@ function DashboardTab() {
                     {product.map((item, index) => {
                       const { title, price, imageUrl, category, date } = item;
                       return (
-                        <tbody className="">
+                        <tbody className="" key={index}>
                           <tr
                             className="bg-gray-50 border-b  dark:border-gray-700"
                             style={{
@@ -233,7 +253,10 @@ function DashboardTab() {
 
                 {order.map((allorder, index) => {
                   return (
-                    <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                    <table
+                      className="w-full text-sm text-left text-gray-500 dark:text-gray-400"
+                      key={index}
+                    >
                       <thead
                         className="text-xs text-black uppercase bg-gray-200 "
                         style={{
@@ -279,9 +302,12 @@ function DashboardTab() {
                           <th scope="col" className="px-6 py-3">
                             Date
                           </th>
+                          <th scope="col" className="px-6 py-3">
+                            Status
+                          </th>
                         </tr>
                       </thead>
-                      {allorder.cartItems.map((item, index) => {
+                      {allorder.cartItems.map((item) => {
                         const {
                           title,
                           description,
@@ -290,115 +316,84 @@ function DashboardTab() {
                           price,
                         } = item;
                         return (
-                          <tbody>
+                          <tbody key={title}>
+                            {" "}
                             <tr
-                              className="bg-gray-50 border-b  dark:border-gray-700"
+                              className="bg-gray-50 border-b dark:border-gray-700"
                               style={{
                                 backgroundColor:
                                   mode === "dark" ? "rgb(46 49 55)" : "",
                                 color: mode === "dark" ? "white" : "",
                               }}
                             >
-                              <td
-                                className="px-6 py-4 text-black "
-                                style={{
-                                  color: mode === "dark" ? "white" : "",
-                                }}
-                              >
-                                {index + 1}.
-                              </td>
-                              <td
-                                className="px-6 py-4 text-black "
-                                style={{
-                                  color: mode === "dark" ? "white" : "",
-                                }}
-                              >
+                              {" "}
+                              <td className="px-6 py-4 text-black">
+                                {index + 1}
+                              </td>{" "}
+                              <td className="px-6 py-4 text-black">
                                 {allorder.paymentId}
-                              </td>
+                              </td>{" "}
                               <th
                                 scope="row"
                                 className="px-6 py-4 font-medium text-black whitespace-nowrap"
                               >
+                                {" "}
                                 <img
                                   className="w-16"
                                   src={imageUrl}
                                   alt="img"
-                                />
-                              </th>
-                              <td
-                                className="px-6 py-4 text-black "
-                                style={{
-                                  color: mode === "dark" ? "white" : "",
-                                }}
-                              >
-                                {title}
-                              </td>
-                              <td
-                                className="px-6 py-4 text-black "
-                                style={{
-                                  color: mode === "dark" ? "white" : "",
-                                }}
-                              >
-                                ₹{price}
-                              </td>
-                              <td
-                                className="px-6 py-4 text-black "
-                                style={{
-                                  color: mode === "dark" ? "white" : "",
-                                }}
-                              >
+                                />{" "}
+                              </th>{" "}
+                              <td className="px-6 py-4 text-black">{title}</td>{" "}
+                              <td className="px-6 py-4 text-black">₹{price}</td>{" "}
+                              <td className="px-6 py-4 text-black">
                                 {category}
-                              </td>
-
-                              <td
-                                className="px-6 py-4 text-black "
-                                style={{
-                                  color: mode === "dark" ? "white" : "",
-                                }}
-                              >
-                                {allorder.addressInfo.name}
-                              </td>
-                              <td
-                                className="px-6 py-4 text-black "
-                                style={{
-                                  color: mode === "dark" ? "white" : "",
-                                }}
-                              >
-                                {allorder.addressInfo.address}
-                              </td>
-                              <td
-                                className="px-6 py-4 text-black "
-                                style={{
-                                  color: mode === "dark" ? "white" : "",
-                                }}
-                              >
-                                {allorder.addressInfo.pincode}
-                              </td>
-                              <td
-                                className="px-6 py-4 text-black "
-                                style={{
-                                  color: mode === "dark" ? "white" : "",
-                                }}
-                              >
-                                {allorder.addressInfo.phoneNumber}
-                              </td>
-                              <td
-                                className="px-6 py-4 text-black "
-                                style={{
-                                  color: mode === "dark" ? "white" : "",
-                                }}
-                              >
+                              </td>{" "}
+                              <td className="px-6 py-4 text-black">
+                                {" "}
+                                {allorder.addressInfo.name}{" "}
+                              </td>{" "}
+                              <td className="px-6 py-4 text-black">
+                                {" "}
+                                {allorder.addressInfo.address}{" "}
+                              </td>{" "}
+                              <td className="px-6 py-4 text-black">
+                                {" "}
+                                {allorder.addressInfo.pincode}{" "}
+                              </td>{" "}
+                              <td className="px-6 py-4 text-black">
+                                {" "}
+                                {allorder.addressInfo.phoneNumber}{" "}
+                              </td>{" "}
+                              <td className="px-6 py-4 text-black">
                                 {allorder.email}
-                              </td>
-                              <td
-                                className="px-6 py-4 text-black "
-                                style={{
-                                  color: mode === "dark" ? "white" : "",
-                                }}
-                              >
+                              </td>{" "}
+                              <td className="px-6 py-4 text-black">
                                 {allorder.date}
-                              </td>
-                            </tr>
+                              </td>{" "}
+                              <td className="px-6 py-4">
+                                {" "}
+                                {loading ? (
+                                  <div>Loading...</div>
+                                ) : (
+                                  <select
+                                    className="bg-gray-200 text-black p-2 rounded"
+                                    value={allorder.status}
+                                    onChange={(e) =>
+                                      handleStatusChange(index, e.target.value)
+                                    }
+                                  >
+                                    {" "}
+                                    {orderStatuses.map((status, idx) => (
+                                      <option key={idx} value={status}>
+                                        {" "}
+                                        {status}{" "}
+                                      </option>
+                                    ))}{" "}
+                                  </select>
+                                )}{" "}
+                              </td>{" "}
+                            </tr>{" "}
                           </tbody>
                         );
                       })}
@@ -445,7 +440,7 @@ function DashboardTab() {
                   {user.map((item, index) => {
                     const { name, uid, email, date } = item;
                     return (
-                      <tbody>
+                      <tbody key={uid}>
                         <tr
                           className="bg-gray-50 border-b  dark:border-gray-700"
                           style={{

@@ -21,6 +21,7 @@ import ResetPassword from "./pages/registration/ResetPassword.jsx";
 import Category from "./pages/category/Category.jsx";
 import Checkout from "./pages/checkout/Checkout.jsx";
 import Customization from "./pages/customization/Customization.jsx";
+import AboutUs from "./pages/about-us/AboutUs.jsx";
 
 function App() {
   return (
@@ -48,6 +49,7 @@ function App() {
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/customization" element={<Customization />} />
+          <Route path="/about-us" element={<AboutUs />} />
           <Route
             path="/addProduct"
             element={

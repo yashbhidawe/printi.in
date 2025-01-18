@@ -6,11 +6,10 @@ import {
   collection,
   onSnapshot,
   orderBy,
-  query,
-  deleteDoc,
-  doc,
   setDoc,
+  doc,
   getDocs,
+  query,
 } from "firebase/firestore";
 import { toast } from "react-toastify";
 import MyContext from "./MyContext.jsx";
@@ -136,16 +135,27 @@ function MyState(props) {
 
   const getOrderData = async () => {
     try {
-      const result = await getDocs(collection(fireDB, "order"));
+      const result = await getDocs(collection(fireDB, "orders"));
       const ordersArray = [];
       result.forEach((doc) => {
-        ordersArray.push(doc.data());
+        ordersArray.push({ ...doc.data(), id: doc.id });
       });
       setOrder(ordersArray);
     } catch (error) {
       console.error("Error fetching orders:", error);
     }
   };
+
+  const updateOrder = async (updatedOrder) => {
+    try {
+      await setDoc(doc(fireDB, "orders", updatedOrder.id), updatedOrder);
+      toast.success("Order status updated");
+    } catch (error) {
+      console.error("Error updating order:", error);
+      toast.error("Failed to update order");
+    }
+  };
+
   const [user, setUser] = useState([]);
   const getUserData = async () => {
     try {
@@ -159,10 +169,12 @@ function MyState(props) {
       console.error("Error fetching users:", error);
     }
   };
+
   useEffect(() => {
     getUserData();
     getOrderData();
   }, []);
+
   const [searchKey, setSearchKey] = useState("");
   const [filterType, setFilterType] = useState("");
   const [filterPrice, setFilterPrice] = useState("");
@@ -172,6 +184,7 @@ function MyState(props) {
     setFilterPrice("");
     toast.info("Filters reset");
   };
+
   return (
     <MyContext.Provider
       value={{
@@ -184,6 +197,8 @@ function MyState(props) {
         updateProduct,
         deleteProduct,
         order,
+        setOrder,
+        updateOrder,
         user,
         searchKey,
         setSearchKey,

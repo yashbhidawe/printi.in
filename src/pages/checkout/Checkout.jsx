@@ -7,6 +7,8 @@ import Layout from "../../components/layout/Layout.jsx";
 import { addDoc, collection } from "firebase/firestore";
 import MyContext from "../../context/data/MyContext.jsx";
 import { v4 as uuidv4 } from "uuid";
+import { jsPDF } from "jspdf";
+import "jspdf-autotable"; // Import the autotable plugin
 
 function Checkout() {
   const context = useContext(MyContext);
@@ -32,7 +34,6 @@ function Checkout() {
   }, [cartItems]);
 
   let shipping = totalAmount > 1500 ? 0 : 100;
-
   const grandTotal = shipping + totalAmount;
 
   useEffect(() => {
@@ -49,6 +50,11 @@ function Checkout() {
 
   const generateOrderId = () => uuidv4();
 
+  const clearCart = () => {
+    dispatch({ type: "CLEAR_CART" });
+    localStorage.setItem("cart", JSON.stringify([]));
+  };
+
   const handleCheckout = async () => {
     if (isAddressEmpty()) {
       toast.error("Please add address to proceed further");
@@ -58,17 +64,24 @@ function Checkout() {
       return;
     }
 
-    const addressInfo = {
-      name: user.displayName,
-      address: `${user.houseNumber}, ${user.streetName}, ${user.city}, ${user.state} - ${user.postalCode}`,
-      pincode: user.postalCode,
-      phoneNumber: user.phoneNumber,
-      date: new Date().toLocaleString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "2-digit",
-      }),
-    };
+    const addressInfo = user
+      ? {
+          name: user.displayName,
+          address: `${user.houseNumber}, ${user.streetName}, ${user.city}, ${user.state} - ${user.postalCode}`,
+          pincode: user.postalCode,
+          phoneNumber: user.phoneNumber,
+          date: new Date().toLocaleString("en-IN", {
+            year: "numeric",
+            month: "short",
+            day: "2-digit",
+          }),
+        }
+      : null;
+
+    if (!addressInfo) {
+      toast.error("Address information is missing.");
+      return;
+    }
 
     const orderId = generateOrderId();
 
@@ -94,6 +107,7 @@ function Checkout() {
           }),
           email: user.email,
           userid: user.uid,
+          status: "pending",
           paymentId,
         };
 
@@ -101,6 +115,8 @@ function Checkout() {
           const orderRef = collection(fireDB, "orders");
           await addDoc(orderRef, orderInfo);
           localStorage.setItem("latestOrderId", orderId);
+          clearCart();
+          navigate("/order"); // Navigate to the order page
         } catch (error) {
           console.error("Error adding order to Firestore:", error);
         }
@@ -112,6 +128,34 @@ function Checkout() {
 
     const pay = new window.Razorpay(options);
     pay.open();
+  };
+
+  const downloadPDF = () => {
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.text("Order Summary", 14, 20);
+
+    // Table columns
+    const columns = ["Item", "Quantity", "Price", "Total"];
+    const rows = cartItems.map((item) => [
+      item.title,
+      item.quantity,
+      `₹${item.price}`,
+      `₹${item.quantity * item.price}`,
+    ]);
+
+    // Use autoTable to create a table
+    doc.autoTable(columns, rows, { startY: 30 });
+
+    // Add the totals below the table
+    let yPosition = doc.lastAutoTable.finalY + 10;
+    doc.text(`Subtotal: ₹${totalAmount}`, 14, yPosition);
+    yPosition += 10;
+    doc.text(`Shipping: ₹${shipping}`, 14, yPosition);
+    yPosition += 10;
+    doc.text(`Grand Total: ₹${grandTotal}`, 14, yPosition);
+
+    doc.save("order-summary.pdf");
   };
 
   return (
@@ -173,6 +217,15 @@ function Checkout() {
           onClick={handleCheckout}
         >
           Buy Now
+        </button>
+
+        {/* Download PDF Button */}
+        <button
+          type="button"
+          className="w-full bg-gray-700 hover:bg-gray-600 transition-colors text-white text-center rounded-lg font-semibold py-3 mt-4"
+          onClick={downloadPDF}
+        >
+          Download PDF
         </button>
       </div>
     </Layout>

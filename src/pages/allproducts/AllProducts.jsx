@@ -4,7 +4,7 @@ import Layout from "../../components/layout/Layout.jsx";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../../redux/cartSlice";
 import { ToastContainer, toast } from "react-toastify";
-import MyContext from "../../context/data/MyContext.jsx"; // Ensure exact case match
+import MyContext from "../../context/data/MyContext.jsx";
 
 function AllProducts() {
   const context = useContext(MyContext);
@@ -44,44 +44,44 @@ function AllProducts() {
   return (
     <Layout>
       <Filter />
-      <section className="text-gray-600 body-font">
+      <section className="text-gray-600 body-font bg-gray-50">
         <div className="container px-5 py-8 md:py-16 mx-auto">
           <div className="lg:w-1/2 w-full mb-6 lg:mb-10">
-            <h1 className="sm:text-3xl text-2xl font-medium title-font mb-2 text-gray-900">
+            <h1 className="sm:text-4xl text-3xl font-bold title-font mb-4 text-gray-900">
               Our Latest Collection
             </h1>
-            <div className="h-1 w-20 bg-pink-600 rounded"></div>
+            <div className="h-1 w-20 bg-primary rounded"></div>
           </div>
 
-          <div className="flex flex-wrap -m-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {filteredProducts.map((item, index) => (
               <div
                 key={index}
-                className="bg-white rounded-xl shadow-md overflow-hidden transition-transform transform hover:scale-105 cursor-pointer p-4 md:w-1/4"
+                className="bg-white rounded-xl shadow-md overflow-hidden transition-transform transform hover:scale-105 cursor-pointer"
                 onClick={() =>
                   (window.location.href = `/productinfo/${item.id}`)
                 }
               >
-                <div className="flex justify-center overflow-hidden">
+                <div className="relative">
                   <img
-                    className="w-full h-48 object-cover"
+                    className="w-full h-48 object-cover rounded-t-lg"
                     src={item.imageUrl}
                     alt={item.title}
                   />
                 </div>
-                <div className="p-6">
+                <div className="p-4">
                   <h2 className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
                     {item.category}
                   </h2>
-                  <h1 className="text-base font-semibold text-gray-800 mb-2">
+                  <h1 className="text-lg font-semibold text-gray-800 mb-2">
                     {item.title}
                   </h1>
-                  <p className="text-primary text-lg font-semibold mb-4">
+                  <p className="text-primary text-xl font-bold mb-4">
                     ₹{item.price}
                   </p>
                   <button
                     type="button"
-                    className="w-full bg-primary hover:bg-primaryLight text-white font-semibold py-2 px-2 md:py-2 md:px-4 rounded-lg focus:outline-none focus:ring-4 focus:ring-primaryLight"
+                    className="w-full bg-primary hover:bg-primaryLight text-white font-semibold py-2 px-4 rounded-lg focus:outline-none focus:ring-4 focus:ring-primaryLight shadow-md"
                     onClick={(e) => {
                       e.stopPropagation(); // Prevents parent click event
                       addCart(item);
