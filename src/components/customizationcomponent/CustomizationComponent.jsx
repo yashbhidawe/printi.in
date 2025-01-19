@@ -1,7 +1,8 @@
 import React, { useRef, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-
+import { addToCart } from "../../redux/cartSlice";
 const CustomizationComponent = ({ selectedTemplate }) => {
   const canvasRef = useRef(null);
   const fabricRef = useRef(null);
@@ -9,6 +10,10 @@ const CustomizationComponent = ({ selectedTemplate }) => {
   const state = useRef([]);
   const currentStateIndex = useRef(-1);
   const [selectedObject, setSelectedObject] = useState(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const dispatch = useDispatch();
+  const cart = useSelector((state) => state.cart);
 
   useEffect(() => {
     if (!window.fabric) {
@@ -43,24 +48,37 @@ const CustomizationComponent = ({ selectedTemplate }) => {
 
         // Load the selected template
         if (selectedTemplate) {
-          window.fabric.Image.fromURL(selectedTemplate.url, (img) => {
-            const scale = Math.min(
-              canvasWidth / img.width,
-              canvasHeight / img.height
+          const templateImage =
+            selectedTemplate.imageUrl ||
+            selectedTemplate.url ||
+            selectedTemplate.preview;
+          if (templateImage) {
+            window.fabric.Image.fromURL(
+              templateImage,
+              (img) => {
+                const scale = Math.min(
+                  canvasWidth / img.width,
+                  canvasHeight / img.height
+                );
+                img.set({
+                  scaleX: scale,
+                  scaleY: scale,
+                  left: (canvasWidth - img.width * scale) / 2,
+                  top: (canvasHeight - img.height * scale) / 2,
+                  selectable: false,
+                  evented: false,
+                });
+                fabricRef.current.setBackgroundImage(img, () => {
+                  fabricRef.current.renderAll();
+                  console.log("Template image loaded successfully");
+                });
+              },
+              (error) => {
+                console.error("Error loading image:", error);
+                toast.error("Error loading template image");
+              }
             );
-            img.set({
-              scaleX: scale,
-              scaleY: scale,
-              left: (canvasWidth - img.width * scale) / 2,
-              top: (canvasHeight - img.height * scale) / 2,
-              selectable: false,
-              evented: false,
-            });
-            fabricRef.current.setBackgroundImage(
-              img,
-              fabricRef.current.renderAll.bind(fabricRef.current)
-            );
-          });
+          }
         }
 
         saveState();
@@ -75,6 +93,45 @@ const CustomizationComponent = ({ selectedTemplate }) => {
     };
   }, [selectedTemplate]);
 
+  const handleAddToCart = async () => {
+    if (!fabricRef.current || !selectedTemplate) return;
+
+    setIsProcessing(true);
+    try {
+      const designImage = fabricRef.current.toDataURL({
+        format: "png",
+        quality: 1,
+        multiplier: 2,
+      });
+
+      // Create cart item with custom design and template info
+      const cartItem = {
+        id: `${selectedTemplate.id}-${Date.now()}`, // Unique ID for each customization
+        templateId: selectedTemplate.id,
+        title: selectedTemplate.title,
+        category: selectedTemplate.category,
+        price: selectedTemplate.price,
+        quantity: selectedTemplate.quantity,
+        customDesign: designImage,
+        customizationDate: new Date().toISOString(),
+        originalTemplate: {
+          id: selectedTemplate.id,
+          imageUrl: selectedTemplate.imageUrl,
+          title: selectedTemplate.title,
+          description: selectedTemplate.description,
+        },
+      };
+      console.log(selectedTemplate.imageUrl);
+      dispatch(addToCart(cartItem));
+      toast.success("Design added to cart successfully!");
+      navigate("/cart");
+    } catch (error) {
+      toast.error("Failed to add design to cart. Please try again.");
+      console.error("Cart addition error:", error);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
   const handleSelection = (e) => {
     setSelectedObject(e.selected?.[0]);
   };
@@ -192,9 +249,28 @@ const CustomizationComponent = ({ selectedTemplate }) => {
   const navigate = useNavigate();
 
   const handleProceedToBuy = () => {
-    const dataUrl = fabricRef.current.toDataURL();
-    navigate("/checkout", { state: { designImage: dataUrl } });
+    if (!fabricRef.current) {
+      toast.error("Please wait for the canvas to initialize");
+      return;
+    }
+
+    const existingItem = cart.find(
+      (item) => item.templateId === selectedTemplate.id
+    );
+
+    if (existingItem) {
+      toast.info(
+        "You already have this template in your cart. Please check your cart or create a different design.",
+        {
+          autoClose: 6000,
+        }
+      );
+      return;
+    }
+
+    handleAddToCart();
   };
+
   return (
     <div
       ref={containerRef}
@@ -273,10 +349,14 @@ const CustomizationComponent = ({ selectedTemplate }) => {
         <div>
           <button
             onClick={handleProceedToBuy}
-            className="bg-primaryLight text-white px-4 py-2 rounded hover:bg-primary w-full mt-4 transition-all"
+            disabled={isProcessing}
+            className={`bg-primaryLight text-white px-6 py-3 rounded-lg hover:bg-primary w-full mt-4 transition-all font-semibold ${
+              isProcessing ? "opacity-50 cursor-not-allowed" : ""
+            }`}
           >
-            {" "}
-            Proceed to Buy{" "}
+            {isProcessing
+              ? "Adding to Cart..."
+              : `Add to Cart (${selectedTemplate?.quantity} pcs - ₹${selectedTemplate?.price})`}
           </button>
         </div>
       </div>
