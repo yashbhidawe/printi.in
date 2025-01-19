@@ -314,6 +314,7 @@ function DashboardTab() {
                           category,
                           imageUrl,
                           price,
+                          customDesign,
                         } = item;
                         return (
                           <tbody key={title}>
@@ -340,7 +341,7 @@ function DashboardTab() {
                                 {" "}
                                 <img
                                   className="w-16"
-                                  src={imageUrl}
+                                  src={customDesign ? customDesign : imageUrl}
                                   alt="img"
                                 />{" "}
                               </th>{" "}

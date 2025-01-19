@@ -46,7 +46,9 @@ function Order() {
                   >
                     <div className="sm:flex sm:items-start">
                       <img
-                        src={item.imageUrl}
+                        src={
+                          item.customDesign ? item.customDesign : item.imageUrl
+                        }
                         alt="product"
                         className="w-full rounded-lg sm:w-40"
                       />

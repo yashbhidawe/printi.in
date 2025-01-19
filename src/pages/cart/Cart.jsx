@@ -51,14 +51,22 @@ function Cart() {
             {/* Cart Items */}
             <div className="rounded-lg md:w-2/3 overflow-y-auto max-h-96">
               {cartItems.map((item, index) => {
-                const { title, price, description, imageUrl, quantity } = item;
+                const {
+                  title,
+                  price,
+                  description,
+                  customDesign,
+                  imageUrl,
+                  quantity,
+                } = item;
+                console.log("Cart Item Image URL:", customDesign); // Log to ensure URL is set
                 return (
                   <div
                     key={index}
                     className="justify-between mb-6 rounded-lg border shadow-lg bg-white p-6 sm:flex sm:justify-start"
                   >
                     <img
-                      src={imageUrl}
+                      src={customDesign ? customDesign : imageUrl}
                       alt="product"
                       className="w-full rounded-lg sm:w-40"
                     />

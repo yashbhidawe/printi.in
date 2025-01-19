@@ -93,6 +93,79 @@ const CustomizationComponent = ({ selectedTemplate }) => {
     };
   }, [selectedTemplate]);
 
+  const uploadImageToCloudinary = async (dataUrl) => {
+    const formData = new FormData();
+    formData.append("file", dataUrl);
+    formData.append("upload_preset", "m5vy063f");
+
+    try {
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/${
+          import.meta.env.VITE_CLOUDINARY_CLOUD_NAME
+        }/image/upload`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      const data = await response.json();
+      console.log("Cloudinary Upload Response:", data); // <-- Add this to log the response
+      if (data.secure_url) {
+        return data.secure_url;
+      } else {
+        throw new Error("Image upload failed");
+      }
+    } catch (error) {
+      console.error("Upload error:", error);
+      toast.error("Failed to upload image. Please try again.");
+      return null;
+    }
+  };
+  const handleAddToCartWithUpload = async () => {
+    if (!fabricRef.current || !selectedTemplate) return;
+
+    setIsProcessing(true);
+    try {
+      const designImage = fabricRef.current.toDataURL({
+        format: "png",
+        quality: 1,
+        multiplier: 2,
+      });
+
+      const imageUrl = await uploadImageToCloudinary(designImage);
+      console.log("Uploaded Image URL:", imageUrl); // <-- Add this to log the image URL
+      if (!imageUrl) return;
+
+      // Create cart item with custom design and template info
+      const cartItem = {
+        id: `${selectedTemplate.id}-${Date.now()}`, // Unique ID for each customization
+        templateId: selectedTemplate.id,
+        title: selectedTemplate.title,
+        category: selectedTemplate.category,
+        price: selectedTemplate.price,
+        quantity: selectedTemplate.quantity,
+        customDesign: imageUrl, // Use the uploaded image URL
+        customizationDate: new Date().toISOString(),
+        originalTemplate: {
+          id: selectedTemplate.id,
+          imageUrl: selectedTemplate.imageUrl,
+          title: selectedTemplate.title,
+          description: selectedTemplate.description,
+        },
+      };
+
+      dispatch(addToCart(cartItem));
+      toast.success("Design added to cart successfully!");
+      navigate("/cart");
+    } catch (error) {
+      toast.error("Failed to add design to cart. Please try again.");
+      console.error("Cart addition error:", error);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   const handleAddToCart = async () => {
     if (!fabricRef.current || !selectedTemplate) return;
 
@@ -248,7 +321,7 @@ const CustomizationComponent = ({ selectedTemplate }) => {
 
   const navigate = useNavigate();
 
-  const handleProceedToBuy = () => {
+  const handleProceedToBuy = async () => {
     if (!fabricRef.current) {
       toast.error("Please wait for the canvas to initialize");
       return;
@@ -268,7 +341,7 @@ const CustomizationComponent = ({ selectedTemplate }) => {
       return;
     }
 
-    handleAddToCart();
+    handleAddToCartWithUpload();
   };
 
   return (

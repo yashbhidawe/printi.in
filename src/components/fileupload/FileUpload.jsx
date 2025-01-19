@@ -11,7 +11,7 @@ const FileUpload = () => {
 
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("upload_preset", "YOUR_UPLOAD_PRESET");
+    formData.append("upload_preset", "m5vy063f");
 
     setLoading(true);
 

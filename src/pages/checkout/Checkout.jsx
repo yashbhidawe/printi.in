@@ -165,7 +165,7 @@ function Checkout() {
         {cartItems.map((item, index) => (
           <div key={index} className="mb-4 border-b pb-4 flex items-center">
             <img
-              src={item.imageUrl}
+              src={item.customDesign ? item.customDesign : item.imageUrl}
               alt={item.title}
               className="w-16 h-16 mr-4 rounded-lg"
             />
