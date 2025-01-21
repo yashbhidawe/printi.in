@@ -37,7 +37,13 @@ function DashboardTab() {
   function openModal() {
     setIsOpen(true);
   }
-  const orderStatuses = ["Pending", "Processing", "Shipped", "Delivered"]; // Example statuses
+  const orderStatuses = [
+    "Order Placed",
+    "Processing",
+    "Shipped",
+    "out for delivery",
+    "Delivered",
+  ]; // Example statuses
 
   return (
     <div>

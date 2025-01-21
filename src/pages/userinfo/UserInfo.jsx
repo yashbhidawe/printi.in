@@ -1,9 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { doc, getDoc } from "firebase/firestore";
-import { fireDB } from "../../firebase/FirebaseConfig.jsx"; // Ensure this path is correct
+import { fireDB } from "../../firebase/FirebaseConfig.jsx";
 import Layout from "../../components/layout/Layout.jsx";
-import { FaEdit } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import {
+  FaUser,
+  FaEnvelope,
+  FaPhone,
+  FaHome,
+  FaMapMarkerAlt,
+  FaCity,
+  FaMapMarked,
+  FaEdit,
+  FaExclamationCircle,
+  FaSpinner,
+} from "react-icons/fa";
 
 const getUserFromLocalStorage = () => {
   const user = localStorage.getItem("user");
@@ -11,8 +22,9 @@ const getUserFromLocalStorage = () => {
 };
 
 const UserInfo = () => {
-  const currentUser = getUserFromLocalStorage();
-  const userId = currentUser ? currentUser.uid : null;
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   const [userInfo, setUserInfo] = useState({
     displayName: "",
@@ -29,111 +41,176 @@ const UserInfo = () => {
   });
 
   const navigate = useNavigate();
+  const currentUser = getUserFromLocalStorage();
+  const userId = currentUser?.uid;
 
   useEffect(() => {
-    if (userId) {
-      const fetchUserInfo = async () => {
+    const fetchUserInfo = async () => {
+      if (!userId) {
+        setError("User not found");
+        setLoading(false);
+        return;
+      }
+
+      try {
         const userDoc = await getDoc(doc(fireDB, "users", userId));
         if (userDoc.exists()) {
-          console.log(userDoc.data());
           setUserInfo(userDoc.data());
+        } else {
+          setError("User profile not found");
         }
-      };
-      fetchUserInfo();
-    }
+      } catch (err) {
+        setError("Error loading user profile");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserInfo();
   }, [userId]);
 
   const handleEdit = () => {
     navigate("/editUserInfo", { state: { userInfo } });
   };
 
+  const InfoItem = ({ icon: Icon, label, value, placeholder }) => (
+    <div className="flex items-center p-4 bg-gray-50 rounded-lg transition-all duration-200 hover:bg-gray-100">
+      <Icon className="w-5 h-5 text-primary" />
+      <div className="ml-4 flex-1">
+        <p className="text-sm font-medium text-gray-500">{label}</p>
+        <p className="text-gray-900">
+          {value || <span className="text-gray-400 italic">{placeholder}</span>}
+        </p>
+      </div>
+    </div>
+  );
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="flex flex-col items-center gap-4">
+            <FaSpinner className="w-8 h-8 text-primary animate-spin" />
+            <p className="text-gray-600">Loading profile...</p>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (error) {
+    return (
+      <Layout>
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="flex flex-col items-center gap-4 text-center">
+            <FaExclamationCircle className="w-12 h-12 text-red-500" />
+            <h2 className="text-xl font-semibold text-gray-900">{error}</h2>
+            <button
+              onClick={() => navigate("/")}
+              className="text-primary hover:text-primaryLight font-medium"
+            >
+              Return to Home
+            </button>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
   return (
     <Layout>
-      <div className="p-10 max-w-lg mx-auto bg-white rounded-xl shadow-lg space-y-6">
-        <h2 className="text-2xl font-bold text-center text-primary">
-          User Information
-        </h2>
-        <div className="flex justify-center mb-4">
-          <img
-            src={userInfo.photoURL}
-            alt="User Avatar"
-            className="w-24 h-24 rounded-full shadow-md"
-          />
-        </div>
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <span className="text-sm font-medium text-gray-700">Name:</span>
-            <span className="text-lg text-gray-900">
-              {userInfo.displayName}
-            </span>
-          </div>
-          <div className="flex justify-between items-center">
-            <span className="text-sm font-medium text-gray-700">Email:</span>
-            <span className="text-lg text-gray-900">{userInfo.email}</span>
-          </div>
-          <div className="flex justify-between items-center">
-            <span className="text-sm font-medium text-gray-700">
-              Phone Number:
-            </span>
-            <span className="text-lg text-gray-900">
-              {userInfo.phoneNumber
-                ? userInfo.phoneNumber
-                : "Edit profile to add phone number"}
-            </span>
-          </div>
-          <div className="flex flex-col gap-2">
-            <div className="flex justify-between items-center">
-              <span className="text-sm font-medium text-gray-700">
-                House Number:
-              </span>
-              <span className="text-lg text-gray-900">
-                {userInfo.houseNumber
-                  ? userInfo.houseNumber
-                  : "Edit profile to add house number"}
-              </span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm font-medium text-gray-700">
-                Street Name:
-              </span>
-              <span className="text-lg text-gray-900">
-                {userInfo.streetName
-                  ? userInfo.streetName
-                  : "Edit profile to add street name"}
-              </span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm font-medium text-gray-700">City:</span>
-              <span className="text-lg text-gray-900">
-                {userInfo.city ? userInfo.city : "Edit profile to add city"}
-              </span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm font-medium text-gray-700">State:</span>
-              <span className="text-lg text-gray-900">
-                {userInfo.state ? userInfo.state : "Edit profile to add state"}
-              </span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm font-medium text-gray-700">
-                PIN Code:
-              </span>
-              <span className="text-lg text-gray-900">
-                {userInfo.postalCode
-                  ? userInfo.postalCode
-                  : "Edit profile to add postal code"}
-              </span>
+      <div className="max-w-3xl mx-auto px-4 py-8">
+        <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+          {/* Header Section */}
+          <div className="relative bg-primary/10 px-6 py-8">
+            <div className="flex flex-col items-center">
+              <div className="relative w-24 h-24 mb-4">
+                {!imageLoaded && userInfo.photoURL && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-gray-100 rounded-full">
+                    <FaSpinner className="w-6 h-6 text-primary animate-spin" />
+                  </div>
+                )}
+                {userInfo.photoURL ? (
+                  <img
+                    src={userInfo.photoURL}
+                    alt={userInfo.displayName}
+                    className={`w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg transition-opacity duration-300 ${
+                      imageLoaded ? "opacity-100" : "opacity-0"
+                    }`}
+                    onLoad={() => setImageLoaded(true)}
+                  />
+                ) : (
+                  <div className="w-24 h-24 rounded-full bg-primary/20 flex items-center justify-center">
+                    <FaUser className="w-12 h-12 text-primary" />
+                  </div>
+                )}
+              </div>
+              <h1 className="text-2xl font-bold text-gray-900 mb-1">
+                {userInfo.displayName || "No Name Set"}
+              </h1>
+              <p className="text-gray-600">{userInfo.role || "User"}</p>
             </div>
           </div>
-        </div>
-        <div className="flex justify-center mt-6">
-          <button
-            onClick={handleEdit}
-            className="inline-flex items-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary hover:bg-primaryLight focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-          >
-            <FaEdit className="mr-2" />
-            Edit Info
-          </button>
+
+          {/* Profile Information */}
+          <div className="p-6">
+            <div className="grid gap-4 md:grid-cols-2">
+              <InfoItem
+                icon={FaEnvelope}
+                label="Email Address"
+                value={userInfo.email}
+                placeholder="No email added"
+              />
+              <InfoItem
+                icon={FaPhone}
+                label="Phone Number"
+                value={userInfo.phoneNumber}
+                placeholder="Add your phone number"
+              />
+              <InfoItem
+                icon={FaHome}
+                label="House Number"
+                value={userInfo.houseNumber}
+                placeholder="Add house number"
+              />
+              <InfoItem
+                icon={FaMapMarkerAlt}
+                label="Street Name"
+                value={userInfo.streetName}
+                placeholder="Add street name"
+              />
+              <InfoItem
+                icon={FaCity}
+                label="City"
+                value={userInfo.city}
+                placeholder="Add city"
+              />
+              <InfoItem
+                icon={FaMapMarked}
+                label="State"
+                value={userInfo.state}
+                placeholder="Add state"
+              />
+              <InfoItem
+                icon={FaMapMarkerAlt}
+                label="Postal Code"
+                value={userInfo.postalCode}
+                placeholder="Add postal code"
+              />
+            </div>
+
+            {/* Edit Button */}
+            <div className="mt-8 flex justify-center">
+              <button
+                onClick={handleEdit}
+                className="inline-flex items-center px-6 py-3 bg-primary text-white rounded-lg hover:bg-primaryLight transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary gap-2 font-medium"
+              >
+                <FaEdit className="w-5 h-5" />
+                Edit Profile
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </Layout>
