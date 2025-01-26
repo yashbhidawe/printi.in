@@ -23,6 +23,7 @@ import Checkout from "./pages/checkout/Checkout.jsx";
 import Customization from "./pages/customization/Customization.jsx";
 import AboutUs from "./pages/about-us/AboutUs.jsx";
 import IDCardGenerator from "./pages/idcardgenerator/IDCardGenerator.jsx";
+import Wishlist from "./pages/wishlist/WishList.jsx";
 
 function App() {
   return (
@@ -52,6 +53,7 @@ function App() {
           <Route path="/customization" element={<Customization />} />
           <Route path="/about-us" element={<AboutUs />} />
           <Route path="/id-card-generator" element={<IDCardGenerator />} />
+          <Route path="/wishlist" element={<Wishlist />} />
           <Route
             path="/addProduct"
             element={

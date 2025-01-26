@@ -68,6 +68,14 @@ function Navbar() {
                       Order
                     </Link>
                   </div>
+                  <div className="flow-root">
+                    <Link
+                      to={"/wishlist"}
+                      className="-m-2 block p-2 font-medium text-gray-900"
+                    >
+                      Wishlist
+                    </Link>
+                  </div>
 
                   <div className="flow-root">
                     {user?.role === "admin" ? (
@@ -180,6 +188,12 @@ function Navbar() {
                     className="text-sm font-medium text-gray-700 "
                   >
                     Order
+                  </Link>
+                  <Link
+                    to={"/wishlist"}
+                    className="text-sm font-medium text-gray-700 "
+                  >
+                    Wishlist
                   </Link>
 
                   {user?.role === "admin" ? (

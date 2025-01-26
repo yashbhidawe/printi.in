@@ -1,8 +1,15 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import Layout from "../../components/layout/Layout.jsx";
 import { useParams, useNavigate } from "react-router-dom";
-import { doc, getDoc } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  collection,
+  query,
+  where,
+  getDocs,
+} from "firebase/firestore";
 import { fireDB } from "../../firebase/FirebaseConfig.jsx";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../../redux/cartSlice.jsx";
@@ -21,17 +28,33 @@ function ProductInfo() {
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [recommendedProducts, setRecommendedProducts] = useState([]); // State for recommended products
 
   const params = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const cartItems = useSelector((state) => state.cart);
 
+  // Fetch product data from Firebase
   const getProductData = async () => {
     try {
       setLoading(true);
       const productTemp = await getDoc(doc(fireDB, "products", params.id));
-      setProduct(productTemp.data());
+      if (!productTemp.exists()) {
+        throw new Error("Product not found");
+      }
+      const productData = productTemp.data();
+      setProduct(productData);
+
+      // Fetch recommended products from the same category
+      const recommendedQuery = query(
+        collection(fireDB, "products"),
+        where("category", "==", productData.category),
+        where("id", "!=", params.id) // Exclude the current product
+      );
+      const recommendedSnapshot = await getDocs(recommendedQuery);
+      const recommendedData = recommendedSnapshot.docs.map((doc) => doc.data());
+      setRecommendedProducts(recommendedData);
     } catch (error) {
       toast.error("Error loading product");
       console.error(error);
@@ -225,6 +248,41 @@ function ProductInfo() {
                 </div>
               </div>
             </div>
+
+            {/* Recommended Products Section */}
+            {recommendedProducts.length > 0 && (
+              <div className="mt-16">
+                <h2 className="text-2xl font-bold text-gray-900 mb-8">
+                  Recommended Products
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                  {recommendedProducts.map((product) => (
+                    <div
+                      key={product.id}
+                      className="bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow duration-300"
+                      onClick={() => navigate(`/product/${product.id}`)}
+                    >
+                      <img
+                        src={product.imageUrl}
+                        alt={product.title}
+                        className="w-full h-48 object-cover"
+                      />
+                      <div className="p-4">
+                        <h3 className="text-lg font-semibold text-gray-900">
+                          {product.title}
+                        </h3>
+                        <p className="text-sm text-gray-600">
+                          {product.category}
+                        </p>
+                        <p className="text-lg font-bold text-primary">
+                          ₹{product.price?.toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </section>
