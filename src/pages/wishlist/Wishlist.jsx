@@ -7,7 +7,7 @@ import { fireDB } from "../../firebase/FirebaseConfig.jsx";
 import { addToCart } from "../../redux/cartSlice.jsx";
 import { Trash2 } from "lucide-react";
 
-function Wishlist() {
+function WishList() {
   const [wishlist, setWishlist] = useState([]);
   const [loading, setLoading] = useState(true);
   const dispatch = useDispatch();
@@ -110,4 +110,4 @@ function Wishlist() {
   );
 }
 
-export default Wishlist;
+export default WishList;
