@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 function Footer() {
   return (
@@ -11,15 +12,15 @@ function Footer() {
               <span className="text-accent">printi</span>
             </div>
             <div className="flex flex-col space-y-2">
-              <a href="/" className="hover:text-accent">
+              <Link to="/" className="hover:text-accent">
                 Home
-              </a>
-              <a href="allproducts" className="hover:text-accent">
+              </Link>
+              <Link to="/allproducts" className="hover:text-accent">
                 Products
-              </a>
-              <a href="about-us" className="hover:text-accent">
+              </Link>
+              <Link to="/about-us" className="hover:text-accent">
                 About Us
-              </a>
+              </Link>
               <a
                 href="https://wa.me/918007800493"
                 target="_blank"
@@ -35,18 +36,21 @@ function Footer() {
           <div className="flex flex-col md:w-1/3 space-y-4">
             <div className="text-lg font-semibold">Quick Links</div>
             <div className="flex flex-col space-y-2">
-              <a href="" className="hover:text-accent">
+              <Link to="/faq" className="hover:text-accent">
                 FAQ
-              </a>
-              <a href="#shipping" className="hover:text-accent">
+              </Link>
+              <Link to="/shipping" className="hover:text-accent">
                 Shipping
-              </a>
-              <a href="#returns" className="hover:text-accent">
-                Returns
-              </a>
-              <a href="#privacy" className="hover:text-accent">
+              </Link>
+              <Link to="/privacy" className="hover:text-accent">
                 Privacy Policy
-              </a>
+              </Link>
+              <Link to="/blog" className="hover:text-accent">
+                Blog
+              </Link>
+              <Link to="/careers" className="hover:text-accent">
+                Careers
+              </Link>
             </div>
           </div>
 

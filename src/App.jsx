@@ -24,7 +24,10 @@ import Customization from "./pages/customization/Customization.jsx";
 import AboutUs from "./pages/about-us/AboutUs.jsx";
 import IDCardGenerator from "./pages/idcardgenerator/IDCardGenerator.jsx";
 import Wishlist from "./pages/wishlist/WishList.jsx";
-
+import FAQ from "./pages/faq/FAQ.jsx";
+import Careers from "./pages/careers/Careers.jsx";
+import Privacy from "./pages/privacy/Privacy.jsx";
+import Blog from "./pages/blog/Blog.jsx";
 function App() {
   return (
     <MyState>
@@ -54,6 +57,10 @@ function App() {
           <Route path="/about-us" element={<AboutUs />} />
           <Route path="/id-card-generator" element={<IDCardGenerator />} />
           <Route path="/wishlist" element={<Wishlist />} />
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/careers" element={<Careers />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/blog" element={<Blog />} />
           <Route
             path="/addProduct"
             element={

@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../../redux/cartSlice.jsx";
 import { ToastContainer, toast } from "react-toastify";
 import MyContext from "../../context/data/MyContext.jsx";
-import { ShoppingCart, Info } from "lucide-react";
+import { ShoppingCart, Info, Eye } from "lucide-react";
 
 function ProductCard({ product }) {
   const [isLoading, setIsLoading] = useState(true);
@@ -19,7 +19,8 @@ function ProductCard({ product }) {
     setIsLoading(false);
   };
 
-  const addCart = async (product) => {
+  const addCart = async (e, product) => {
+    e.stopPropagation(); // Prevent navigation when clicking add to cart
     setIsAddingToCart(true);
     try {
       dispatch(addToCart(product));
@@ -41,70 +42,99 @@ function ProductCard({ product }) {
   }, [cartItems]);
 
   return (
-    <div className="group relative bg-white rounded-xl shadow-sm hover:shadow-lg overflow-hidden transition-all duration-300 ease-in-out">
+    <div
+      onClick={navigateToProductInfo}
+      className="group relative bg-white rounded-xl shadow-sm hover:shadow-xl cursor-pointer 
+                overflow-hidden transition-all duration-300 ease-in-out flex flex-col h-full 
+                border border-transparent hover:border-accent"
+    >
       {/* Image Container */}
-      <div className="relative aspect-w-3 aspect-h-2 w-full overflow-hidden bg-gray-100">
+      <div className="relative aspect-w-4 aspect-h-3 w-full overflow-hidden bg-bgLight">
         {isLoading && (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
           </div>
         )}
         <img
-          className={`w-full h-48 object-cover transition-opacity duration-300 ${
+          className={`w-full h-52 object-cover transition-all duration-500 ${
             isLoading ? "opacity-0" : "opacity-100"
-          }`}
+          } group-hover:scale-110 transform`}
           src={imageUrl}
           alt={title}
           onLoad={handleImageLoad}
         />
-        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-300" />
 
-        {/* Quick view button */}
-        <button
-          onClick={navigateToProductInfo}
-          className="absolute top-4 right-4 p-2 bg-white rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-          aria-label="View product details"
+        {/* Overlay with Quick Actions */}
+        <div
+          className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 
+                      transition-all duration-300 flex items-center justify-center opacity-0 
+                      group-hover:opacity-100"
         >
-          <Info className="w-5 h-5 text-gray-600" />
-        </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              navigateToProductInfo();
+            }}
+            className="mx-2 p-3 bg-white rounded-full shadow-lg transform translate-y-4 
+                     group-hover:translate-y-0 transition-all duration-300 hover:bg-accent 
+                     hover:text-white"
+            aria-label="Quick view"
+          >
+            <Eye className="w-5 h-5" />
+          </button>
+        </div>
       </div>
 
       {/* Content */}
-      <div className="p-6">
-        <div className="mb-4">
-          <span className="inline-block px-2 py-1 text-xs font-medium bg-primary/10 text-primary rounded-full">
+      <div className="p-4 sm:p-6 flex flex-col flex-grow">
+        {/* Category Tag */}
+        <div className="mb-3">
+          <span className="inline-block px-2.5 py-1 text-xs font-medium bg-bgLight text-primary rounded-full">
             {category}
           </span>
         </div>
 
-        <h2 className="text-lg font-semibold text-gray-800 mb-2 line-clamp-2 hover:line-clamp-none transition-all duration-200">
+        {/* Title */}
+        <h2 className="text-base sm:text-lg font-semibold text-textDark mb-2 line-clamp-2 hover:text-primary transition-colors duration-200">
           {title}
         </h2>
 
-        <div className="flex items-center justify-between mb-4">
-          <p className="text-primary text-xl font-bold">
-            ₹{price.toLocaleString("en-IN")}
-          </p>
-        </div>
+        {/* Price and Add to Cart */}
+        <div className="mt-auto pt-4">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-primary text-lg sm:text-xl font-bold">
+              ₹{price.toLocaleString("en-IN")}
+            </p>
+          </div>
 
-        <button
-          type="button"
-          className={`w-full flex items-center justify-center gap-2 bg-primary hover:bg-primaryLight text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-primary/30 disabled:opacity-70 disabled:cursor-not-allowed`}
-          onClick={() => addCart(product)}
-          disabled={isAddingToCart}
-        >
-          {isAddingToCart ? (
-            <>
-              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              Adding...
-            </>
-          ) : (
-            <>
-              <ShoppingCart className="w-5 h-5" />
-              Add to Cart
-            </>
-          )}
-        </button>
+          <button
+            type="button"
+            onClick={(e) => addCart(e, product)}
+            className={`w-full flex items-center justify-center gap-2 
+                      ${
+                        isAddingToCart
+                          ? "bg-primaryLight"
+                          : "bg-primary hover:bg-primaryLight"
+                      } 
+                      text-textLight font-medium py-2.5 px-4 rounded-lg 
+                      transition-all duration-300 focus:outline-none 
+                      focus:ring-2 focus:ring-primary focus:ring-offset-2
+                      disabled:opacity-70 disabled:cursor-not-allowed`}
+            disabled={isAddingToCart}
+          >
+            {isAddingToCart ? (
+              <>
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <span>Adding...</span>
+              </>
+            ) : (
+              <>
+                <ShoppingCart className="w-5 h-5" />
+                <span>Add to Cart</span>
+              </>
+            )}
+          </button>
+        </div>
       </div>
     </div>
   );
