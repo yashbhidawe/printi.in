@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import Layout from "../../components/layout/Layout.jsx";
-import { getDocs, collection } from "firebase/firestore";
+import { getDocs, collection, deleteDoc, doc } from "firebase/firestore";
 import { fireDB } from "../../firebase/FirebaseConfig.jsx";
 import { addToCart } from "../../redux/cartSlice.jsx";
 import { Trash2 } from "lucide-react";
@@ -18,10 +18,14 @@ function WishList() {
     try {
       setLoading(true);
       const wishlistCollection = await getDocs(collection(fireDB, "wishlist"));
-      const wishlistData = wishlistCollection.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+      const wishlistData = wishlistCollection.docs
+        .map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }))
+        // Filter out items with missing product data
+        .filter((item) => item.product?.imageUrl && item.product?.title);
+
       setWishlist(wishlistData);
     } catch (error) {
       toast.error("Failed to fetch wishlist items.");
@@ -35,17 +39,23 @@ function WishList() {
   }, []);
 
   const handleAddToCart = (item) => {
-    dispatch(addToCart(item));
-    toast.success("Added to cart!", {
-      position: "bottom-right",
-      autoClose: 2000,
-    });
+    if (!item.product) {
+      toast.error("Invalid product data");
+      return;
+    }
+    dispatch(addToCart(item.product));
+    toast.success("Added to cart!");
   };
 
-  const handleRemoveFromWishlist = (id) => {
-    const updatedWishlist = wishlist.filter((item) => item.id !== id);
-    setWishlist(updatedWishlist);
-    toast.info("Item removed from wishlist.");
+  const handleRemoveFromWishlist = async (id) => {
+    try {
+      await deleteDoc(doc(fireDB, "wishlist", id));
+      setWishlist(wishlist.filter((item) => item.id !== id));
+      toast.info("Item removed from wishlist.");
+    } catch (error) {
+      toast.error("Failed to remove item.");
+      console.error(error);
+    }
   };
 
   return (
@@ -70,20 +80,21 @@ function WishList() {
                   key={item.id}
                   className="border p-4 rounded-lg shadow-md bg-white"
                 >
+                  {/* Use optional chaining */}
                   <img
-                    src={item.imageUrl}
-                    alt={item.title}
+                    src={item.product?.imageUrl || "/placeholder-image.jpg"}
+                    alt={item.product?.title || "Product image"}
                     className="w-full h-48 object-cover rounded-md mb-4"
                   />
                   <h2 className="text-lg font-medium text-textDark">
-                    {item.title}
+                    {item.product?.title || "Untitled Product"}
                   </h2>
                   <p className="text-sm text-gray-600 mb-4">
-                    {item.description}
+                    {item.product?.description || "No description available"}
                   </p>
                   <div className="flex justify-between items-center">
                     <span className="text-xl font-semibold text-primary">
-                      ₹{item.price?.toLocaleString()}
+                      ₹{item.product?.price?.toLocaleString() || "N/A"}
                     </span>
                     <div className="flex space-x-2">
                       <button

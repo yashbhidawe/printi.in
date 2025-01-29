@@ -9,6 +9,8 @@ import {
   query,
   where,
   getDocs,
+  deleteDoc,
+  addDoc,
 } from "firebase/firestore";
 import { fireDB } from "../../firebase/FirebaseConfig.jsx";
 import { useDispatch, useSelector } from "react-redux";
@@ -28,17 +30,27 @@ function ProductInfo() {
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
-  const [recommendedProducts, setRecommendedProducts] = useState([]); // State for recommended products
+  const [recommendedProducts, setRecommendedProducts] = useState([]);
+  const [isLoadingRecommended, setIsLoadingRecommended] = useState(false);
 
   const params = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const cartItems = useSelector((state) => state.cart);
 
-  // Fetch product data from Firebase
+  // Get user from localStorage
+  const getUserFromLocalStorage = () => {
+    const user = localStorage.getItem("user");
+    return user ? JSON.parse(user) : null;
+  };
+
+  const currentUser = getUserFromLocalStorage();
+
+  // Fetch product data and recommended products
   const getProductData = async () => {
     try {
       setLoading(true);
+      setIsLoadingRecommended(true);
       const productTemp = await getDoc(doc(fireDB, "products", params.id));
       if (!productTemp.exists()) {
         throw new Error("Product not found");
@@ -46,11 +58,11 @@ function ProductInfo() {
       const productData = productTemp.data();
       setProduct(productData);
 
-      // Fetch recommended products from the same category
+      // Fetch recommended products
       const recommendedQuery = query(
         collection(fireDB, "products"),
         where("category", "==", productData.category),
-        where("id", "!=", params.id) // Exclude the current product
+        where("id", "!=", params.id)
       );
       const recommendedSnapshot = await getDocs(recommendedQuery);
       const recommendedData = recommendedSnapshot.docs.map((doc) => doc.data());
@@ -60,6 +72,7 @@ function ProductInfo() {
       console.error(error);
     } finally {
       setLoading(false);
+      setIsLoadingRecommended(false);
     }
   };
 
@@ -71,6 +84,35 @@ function ProductInfo() {
     localStorage.setItem("cart", JSON.stringify(cartItems));
   }, [cartItems]);
 
+  // Check if the product is liked by the current user
+  useEffect(() => {
+    const checkIfLiked = async () => {
+      try {
+        const userId = currentUser?.uid;
+        if (!userId || !product) return;
+
+        const wishlistRef = collection(fireDB, "wishlist");
+        const wishlistQuery = query(
+          wishlistRef,
+          where("userId", "==", userId),
+          where("productId", "==", product.id)
+        );
+        const wishlistSnapshot = await getDocs(wishlistQuery);
+
+        if (!wishlistSnapshot.empty) {
+          setIsLiked(true);
+        }
+      } catch (error) {
+        console.error("Error checking wishlist:", error);
+      }
+    };
+
+    if (product) {
+      checkIfLiked();
+    }
+  }, [product, currentUser]);
+
+  // Add product to cart
   const handleAddToCart = async () => {
     setIsAddingToCart(true);
     try {
@@ -84,6 +126,57 @@ function ProductInfo() {
     }
   };
 
+  // Like or unlike a product
+  const handleLike = async () => {
+    if (!currentUser || !product) {
+      toast.error("Please log in to like products");
+      return;
+    }
+
+    try {
+      const userId = currentUser.uid;
+      const wishlistRef = collection(fireDB, "wishlist");
+      const wishlistQuery = query(
+        wishlistRef,
+        where("userId", "==", userId),
+        where("productId", "==", product.id)
+      );
+      const wishlistSnapshot = await getDocs(wishlistQuery);
+
+      if (wishlistSnapshot.empty) {
+        // Ensure the product object has all required fields
+        const productData = {
+          id: product.id,
+          title: product.title,
+          price: product.price,
+          imageUrl: product.imageUrl,
+          category: product.category,
+          description: product.description,
+        };
+
+        // Add to wishlist
+        await addDoc(wishlistRef, {
+          userId: userId,
+          productId: product.id,
+          product: productData, // Pass the structured product data
+          timestamp: new Date(),
+        });
+        setIsLiked(true);
+        toast.success("Added to wishlist");
+      } else {
+        // Remove from wishlist
+        const docId = wishlistSnapshot.docs[0].id;
+        await deleteDoc(doc(wishlistRef, docId));
+        setIsLiked(false);
+        toast.success("Removed from wishlist");
+      }
+    } catch (error) {
+      toast.error("Error updating wishlist");
+      console.error(error);
+    }
+  };
+
+  // Share product
   const handleShare = () => {
     if (navigator.share) {
       navigator.share({
@@ -97,6 +190,7 @@ function ProductInfo() {
     }
   };
 
+  // Loading state
   if (loading) {
     return (
       <Layout>
@@ -107,6 +201,7 @@ function ProductInfo() {
     );
   }
 
+  // Product not found state
   if (!product) {
     return (
       <Layout>
@@ -153,6 +248,7 @@ function ProductInfo() {
                     imageLoaded ? "opacity-100" : "opacity-0"
                   }`}
                   onLoad={() => setImageLoaded(true)}
+                  onError={() => setImageLoaded(true)}
                 />
               </div>
 
@@ -190,7 +286,7 @@ function ProductInfo() {
 
                 <div className="flex items-center justify-between mb-8">
                   <span className="text-3xl font-bold text-gray-900">
-                    ₹{product.price.toLocaleString("en-IN")}
+                    ₹{product.price?.toLocaleString("en-IN") || "N/A"}
                   </span>
                 </div>
 
@@ -214,7 +310,10 @@ function ProductInfo() {
                   </button>
 
                   <button
-                    onClick={() => setIsLiked(!isLiked)}
+                    onClick={handleLike}
+                    aria-label={
+                      isLiked ? "Remove from wishlist" : "Add to wishlist"
+                    }
                     className={`p-4 rounded-lg border transition-all duration-200 ${
                       isLiked
                         ? "bg-red-50 border-red-200 text-red-500"
@@ -228,6 +327,7 @@ function ProductInfo() {
 
                   <button
                     onClick={handleShare}
+                    aria-label="Share product"
                     className="p-4 rounded-lg border border-gray-200 text-gray-600 hover:border-primary hover:text-primary transition-all duration-200"
                   >
                     <Share2 className="w-6 h-6" />
@@ -275,7 +375,7 @@ function ProductInfo() {
                           {product.category}
                         </p>
                         <p className="text-lg font-bold text-primary">
-                          ₹{product.price?.toLocaleString()}
+                          ₹{product.price?.toLocaleString() || "N/A"}
                         </p>
                       </div>
                     </div>
