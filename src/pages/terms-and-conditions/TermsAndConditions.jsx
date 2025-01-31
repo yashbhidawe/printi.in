@@ -9,8 +9,8 @@ const TermsAndConditions = () => {
           Terms and Conditions
         </h1>
         <p className="text-gray-700 mb-4">
-          Welcome to PrintIt.in! By accessing and using our website, you agree
-          to comply with the following terms and conditions.
+          Welcome to Printi.in! By accessing and using our website, you agree to
+          comply with the following terms and conditions.
         </p>
 
         <h2 className="text-2xl font-semibold text-gray-800 mt-6 mb-2">
@@ -63,7 +63,7 @@ const TermsAndConditions = () => {
             href="mailto:support@printit.in"
             className="text-primary hover:underline"
           >
-            support@printit.in
+            imagegalaxy001@gmail.com{" "}
           </a>
           .
         </p>
