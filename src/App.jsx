@@ -28,6 +28,8 @@ import FAQ from "./pages/faq/FAQ.jsx";
 import Careers from "./pages/careers/Careers.jsx";
 import Privacy from "./pages/privacy/Privacy.jsx";
 import Blog from "./pages/blog/Blog.jsx";
+import ContactUs from "./pages/contact-us/ContactUs.jsx";
+import TermsAndConditions from "./pages/terms-and-conditions/TermsAndConditions.jsx";
 function App() {
   return (
     <MyState>
@@ -61,6 +63,11 @@ function App() {
           <Route path="/careers" element={<Careers />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/blog" element={<Blog />} />
+          <Route path="/contact-us" element={<ContactUs />} />
+          <Route
+            path="/terms-and-conditions"
+            element={<TermsAndConditions />}
+          />
           <Route
             path="/addProduct"
             element={

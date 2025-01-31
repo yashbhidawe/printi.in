@@ -21,14 +21,7 @@ function Footer() {
               <Link to="/about-us" className="hover:text-accent">
                 About Us
               </Link>
-              <a
-                href="https://wa.me/918007800493"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-accent"
-              >
-                Contact
-              </a>
+              <Link to="/contact-us">Contact</Link>
             </div>
           </div>
 
@@ -50,6 +43,9 @@ function Footer() {
               </Link>
               <Link to="/careers" className="hover:text-accent">
                 Careers
+              </Link>
+              <Link to="/terms-and-conditions" className="hover:text-accent">
+                Terms & Conditions
               </Link>
             </div>
           </div>
