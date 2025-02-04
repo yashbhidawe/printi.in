@@ -136,6 +136,8 @@ function ProductInfo() {
     try {
       const userId = currentUser.uid;
       const wishlistRef = collection(fireDB, "wishlist");
+
+      // Query for wishlist items specific to this user and this product
       const wishlistQuery = query(
         wishlistRef,
         where("userId", "==", userId),
@@ -144,21 +146,14 @@ function ProductInfo() {
       const wishlistSnapshot = await getDocs(wishlistQuery);
 
       if (wishlistSnapshot.empty) {
-        // Ensure the product object has all required fields
-        const productData = {
-          id: product.id,
-          title: product.title,
-          price: product.price,
-          imageUrl: product.imageUrl,
-          category: product.category,
-          description: product.description,
-        };
-
-        // Add to wishlist
+        // Add to wishlist with user-specific data
         await addDoc(wishlistRef, {
-          userId: userId,
-          productId: product.id,
-          product: productData, // Pass the structured product data
+          userId: userId, // Explicitly store user ID
+          productId: product.id, // Store product ID for quick querying
+          product: {
+            ...product,
+            userId: userId, // Add user ID to the product data for additional security
+          },
           timestamp: new Date(),
         });
         setIsLiked(true);

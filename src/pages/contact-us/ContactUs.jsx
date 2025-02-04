@@ -75,6 +75,7 @@ const ContactUs = () => {
           </form>
 
           <div className="mt-8 text-center">
+            <p className="text-gray-600">Image Galaxy</p>
             <p className="text-gray-600">Email: imagegalaxy001@gmail.com</p>
             <p className="text-gray-600">Phone: +91 8007800493</p>
             <p className="text-gray-600">

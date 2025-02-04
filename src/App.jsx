@@ -30,6 +30,8 @@ import Privacy from "./pages/privacy/Privacy.jsx";
 import Blog from "./pages/blog/Blog.jsx";
 import ContactUs from "./pages/contact-us/ContactUs.jsx";
 import TermsAndConditions from "./pages/terms-and-conditions/TermsAndConditions.jsx";
+import CancellationPolicy from "./pages/cancelation/CancelationPolicy.jsx";
+import ShippingDeliveryPolicy from "./pages/shipping-delivery-policy/ShippingDeliveryPolicy.jsx";
 function App() {
   return (
     <MyState>
@@ -64,6 +66,11 @@ function App() {
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/contact-us" element={<ContactUs />} />
+          <Route path="/cancelation" element={<CancellationPolicy />} />
+          <Route
+            path="/shpping-deliver-policy"
+            element={<ShippingDeliveryPolicy />}
+          />
           <Route
             path="/terms-and-conditions"
             element={<TermsAndConditions />}

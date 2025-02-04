@@ -2,7 +2,14 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import Layout from "../../components/layout/Layout.jsx";
-import { getDocs, collection, deleteDoc, doc } from "firebase/firestore";
+import {
+  getDocs,
+  collection,
+  deleteDoc,
+  doc,
+  query,
+  where,
+} from "firebase/firestore";
 import { fireDB } from "../../firebase/FirebaseConfig.jsx";
 import { addToCart } from "../../redux/cartSlice.jsx";
 import { Trash2 } from "lucide-react";
@@ -13,11 +20,30 @@ function WishList() {
   const dispatch = useDispatch();
   const cartItems = useSelector((state) => state.cart);
 
-  // Fetch wishlist data from Firebase
+  // Get current user from localStorage
+  const getCurrentUser = () => {
+    const user = localStorage.getItem("user");
+    return user ? JSON.parse(user) : null;
+  };
+
+  // Fetch wishlist data for the current user from Firebase
   const fetchWishlist = async () => {
+    const currentUser = getCurrentUser();
+    if (!currentUser) {
+      toast.error("Please log in to view wishlist");
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
-      const wishlistCollection = await getDocs(collection(fireDB, "wishlist"));
+      const wishlistCollection = await getDocs(
+        query(
+          collection(fireDB, "wishlist"),
+          where("userId", "==", currentUser.uid) // Filter by current user's ID
+        )
+      );
+
       const wishlistData = wishlistCollection.docs
         .map((doc) => ({
           id: doc.id,
@@ -29,6 +55,7 @@ function WishList() {
       setWishlist(wishlistData);
     } catch (error) {
       toast.error("Failed to fetch wishlist items.");
+      console.error(error);
     } finally {
       setLoading(false);
     }

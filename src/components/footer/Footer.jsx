@@ -47,6 +47,15 @@ function Footer() {
               <Link to="/terms-and-conditions" className="hover:text-accent">
                 Terms & Conditions
               </Link>
+              <Link to={"/cancelation"} className="hover:text-accent">
+                Cancelation & Refund Policy
+              </Link>
+              <Link
+                to={"/shpping-deliver-policy"}
+                className="hover:text-accent"
+              >
+                Shipping & Delivery Policy
+              </Link>
             </div>
           </div>
 
@@ -112,6 +121,7 @@ function Footer() {
           <p>
             &copy; {new Date().getFullYear()}{" "}
             <span className="text-accent">printi.in</span> All rights reserved.
+            @Image Galaxy
           </p>
         </div>
       </div>
