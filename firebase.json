@@ -13,7 +13,11 @@
   },
   "hosting": {
     "public": "dist",
-    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
     "rewrites": [
       {
         "source": "**",
@@ -35,7 +39,20 @@
         "firebase-debug.*.log",
         "*.local"
       ],
-      "predeploy": ["cd \"functions\" && npm install && npm run build"]
+      "predeploy": [
+        "cd \"functions\" && npm install && npm run build"
+      ]
+    },
+    {
+      "source": "cashfree",
+      "codebase": "cashfree",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ]
     }
   ]
 }

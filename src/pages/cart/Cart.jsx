@@ -68,7 +68,7 @@ function Cart() {
                     <img
                       src={customDesign ? customDesign : imageUrl}
                       alt="product"
-                      className="w-full rounded-lg sm:w-40"
+                      className="w-40 h-40 aspect-square rounded-lg "
                     />
                     <div className="sm:ml-4 sm:flex sm:w-full sm:justify-between">
                       <div className="mt-5 sm:mt-0">

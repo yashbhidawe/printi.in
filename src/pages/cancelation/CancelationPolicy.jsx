@@ -39,7 +39,7 @@ const CancellationPolicy = () => {
         </div>
 
         <div className="text-center text-sm text-gray-500 mt-6">
-          © 2024 Image Galaxy. All Rights Reserved.
+          © 2025 Image Galaxy. All Rights Reserved.
         </div>
       </div>
     </Layout>

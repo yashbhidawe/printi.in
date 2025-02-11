@@ -32,6 +32,7 @@ import ContactUs from "./pages/contact-us/ContactUs.jsx";
 import TermsAndConditions from "./pages/terms-and-conditions/TermsAndConditions.jsx";
 import CancellationPolicy from "./pages/cancelation/CancelationPolicy.jsx";
 import ShippingDeliveryPolicy from "./pages/shipping-delivery-policy/ShippingDeliveryPolicy.jsx";
+import OrderStatus from "./pages/order-status/OrderStatus.jsx";
 function App() {
   return (
     <MyState>
@@ -67,6 +68,7 @@ function App() {
           <Route path="/blog" element={<Blog />} />
           <Route path="/contact-us" element={<ContactUs />} />
           <Route path="/cancelation" element={<CancellationPolicy />} />
+          <Route path="order-status" element={<OrderStatus />} />
           <Route
             path="/shpping-deliver-policy"
             element={<ShippingDeliveryPolicy />}

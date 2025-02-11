@@ -33,7 +33,7 @@ const ShippingDeliveryPolicy = () => {
         </div>
 
         <div className="text-center text-xs text-gray-500 mt-4">
-          © 2024 Image Galaxy
+          © 2025 Image Galaxy
         </div>
       </div>
     </Layout>
