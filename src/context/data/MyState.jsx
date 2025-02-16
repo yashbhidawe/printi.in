@@ -3,6 +3,7 @@ import { fireDB } from "../../firebase/FirebaseConfig.jsx";
 import {
   Timestamp,
   addDoc,
+  deleteDoc,
   collection,
   onSnapshot,
   orderBy,

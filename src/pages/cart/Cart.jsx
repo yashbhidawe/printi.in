@@ -1,10 +1,13 @@
-import React, { useContext, useEffect, useMemo } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import Layout from "../../components/layout/Layout.jsx";
 import { useSelector, useDispatch } from "react-redux";
 import { deleteFromCart, updateCartQuantity } from "../../redux/cartSlice";
 import { toast } from "react-toastify";
 import MyContext from "../../context/data/MyContext.jsx";
 import { useNavigate } from "react-router-dom";
+import { Trash2, Plus, Minus, ShoppingBag, Download } from "lucide-react";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 function Cart() {
   const context = useContext(MyContext);
@@ -12,15 +15,69 @@ function Cart() {
   const dispatch = useDispatch();
   const cartItems = useSelector((state) => state.cart);
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
 
   const deleteCart = (item) => {
     dispatch(deleteFromCart({ id: item.id }));
     toast.success("Item removed from cart");
   };
 
-  const handleQuantityChange = (item, quantity) => {
-    if (quantity < 1) return;
+  const handleQuantityChange = (item, newQuantity) => {
+    // Convert input to number immediately to prevent string operations
+    const quantity = Number(newQuantity);
+
+    // Validate quantity
+    if (!Number.isInteger(quantity) || quantity < 1) {
+      toast.error("Please enter a valid quantity");
+      dispatch(updateCartQuantity({ id: item.id, quantity: item.quantity }));
+      return;
+    }
+
+    if (quantity > 10000) {
+      toast.warning("Maximum quantity limit is 10,000");
+      return;
+    }
+
     dispatch(updateCartQuantity({ id: item.id, quantity }));
+  };
+
+  const generatePDF = () => {
+    const doc = new jsPDF();
+
+    // Add Header
+    doc.setFontSize(20);
+    doc.text("Invoice", 14, 22);
+
+    // Add Date
+    doc.setFontSize(12);
+    doc.text(`Date: ${new Date().toLocaleDateString()}`, 14, 32);
+
+    // Prepare table data
+    const tableData = cartItems.map((item) => [
+      item.title,
+      item.quantity,
+      `₹${item.price.toLocaleString()}`,
+      `₹${(item.price * item.quantity).toLocaleString()}`,
+    ]);
+
+    // Add items table
+    autoTable(doc, {
+      head: [["Item", "Quantity", "Price", "Total"]],
+      body: tableData,
+      startY: 40,
+      theme: "grid",
+      styles: { fontSize: 10, cellPadding: 5 },
+      headStyles: { fillColor: [66, 66, 66] },
+    });
+
+    // Add total
+    const finalY = doc.lastAutoTable.finalY || 40;
+    doc.setFontSize(12);
+    doc.text(`Subtotal: ₹${subtotal.toLocaleString()}`, 14, finalY + 20);
+
+    // Save PDF
+    doc.save("shopping-cart.pdf");
+    toast.success("Invoice downloaded successfully!");
   };
 
   useEffect(() => {
@@ -32,152 +89,216 @@ function Cart() {
       toast.error("Your cart is empty. Add items before proceeding.");
       return;
     }
-    navigate("/checkout", { state: { cartItems } });
+    setIsLoading(true);
+    setTimeout(() => {
+      setIsLoading(false);
+      navigate("/checkout", { state: { cartItems } });
+    }, 800);
   };
 
   const subtotal = useMemo(
-    () => cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0),
+    () =>
+      cartItems.reduce(
+        (acc, item) => acc + Number(item.price) * Number(item.quantity),
+        0
+      ),
     [cartItems]
   );
 
-  return (
-    <Layout>
-      <div className="min-h-screen bg-bgLight pt-5 pb-5">
-        <h1 className="mb-10 text-center text-2xl font-bold text-primary">
-          Cart Items
-        </h1>
-        {cartItems.length > 0 ? (
-          <div className="mx-auto max-w-5xl px-6 md:flex md:space-x-6 xl:px-0">
-            {/* Cart Items */}
-            <div className="rounded-lg md:w-2/3 overflow-y-auto max-h-96">
-              {cartItems.map((item, index) => {
-                const {
-                  title,
-                  price,
-                  description,
-                  customDesign,
-                  imageUrl,
-                  quantity,
-                } = item;
-                console.log("Cart Item Image URL:", customDesign); // Log to ensure URL is set
-                return (
-                  <div
-                    key={index}
-                    className="justify-between mb-6 rounded-lg border shadow-lg bg-white p-6 sm:flex sm:justify-start"
-                  >
-                    <img
-                      src={customDesign ? customDesign : imageUrl}
-                      alt="product"
-                      className="w-40 h-40 aspect-square rounded-lg "
-                    />
-                    <div className="sm:ml-4 sm:flex sm:w-full sm:justify-between">
-                      <div className="mt-5 sm:mt-0">
-                        <h2 className="text-lg font-bold text-textDark">
-                          {title}
-                        </h2>
-                        <p className="text-sm text-textDark">{description}</p>
-                        <p className="mt-1 text-sm font-semibold text-textLight">
-                          ₹{price}
-                        </p>
-                      </div>
-                      <div className="mt-4 flex flex-col justify-between items-center sm:mt-0 sm:block sm:space-y-6">
-                        <div className="flex items-center mb-2 space-x-2">
-                          {[300, 500, 1000].map((preset) => (
-                            <button
-                              key={preset}
-                              onClick={() => handleQuantityChange(item, preset)}
-                              className="px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded-md"
-                              title={`Set quantity to ${preset}`}
-                            >
-                              {preset}
-                            </button>
-                          ))}
-                        </div>
-                        <div className="flex items-center mb-2">
-                          <button
-                            onClick={() =>
-                              handleQuantityChange(item, quantity - 1)
-                            }
-                            className="px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded-md"
-                          >
-                            -
-                          </button>
-                          <input
-                            type="number"
-                            className="mx-2 text-lg border-2 border-gray-300 rounded-md w-16 text-center"
-                            value={quantity}
-                            onChange={(e) =>
-                              handleQuantityChange(
-                                item,
-                                parseInt(e.target.value)
-                              )
-                            }
-                          />
-                          <button
-                            onClick={() =>
-                              handleQuantityChange(item, quantity + 1)
-                            }
-                            className="px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded-md"
-                          >
-                            +
-                          </button>
-                        </div>
-                        <svg
-                          onClick={() => deleteCart(item)}
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          strokeWidth={1.5}
-                          stroke="currentColor"
-                          className="w-6 h-6 cursor-pointer hover:text-red-500"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"
-                          />
-                        </svg>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+  const CartItem = ({ item }) => {
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [localQuantity, setLocalQuantity] = useState(item.quantity);
 
-            {/* Subtotal Card */}
-            <div className="mt-6 md:mt-0 md:w-1/3">
-              <div className="sticky top-5 bg-white p-6 rounded-lg shadow-md">
-                <h2 className="text-lg font-semibold text-gray-700">
-                  Order Summary
-                </h2>
-                <div className="mt-4 flex justify-between">
-                  <span className="text-gray-600">Subtotal</span>
-                  <span className="font-semibold">₹{subtotal}</span>
-                </div>
-                <div className="mt-4">
+    useEffect(() => {
+      setLocalQuantity(item.quantity);
+    }, [item.quantity]);
+
+    const handleDelete = () => {
+      setIsDeleting(true);
+      setTimeout(() => {
+        deleteCart(item);
+      }, 300);
+    };
+
+    const handleQuantityInputChange = (e) => {
+      const value = e.target.value;
+      setLocalQuantity(value);
+      // Only update redux if the value is valid
+      if (value && Number(value) >= 1) {
+        handleQuantityChange(item, Number(value));
+      }
+    };
+
+    const handleQuantityInputBlur = () => {
+      // Reset to last valid quantity if current input is invalid
+      if (!localQuantity || Number(localQuantity) < 1) {
+        setLocalQuantity(item.quantity);
+      }
+    };
+
+    return (
+      <div
+        className={`transform transition-all duration-300 ${
+          isDeleting ? "scale-95 opacity-0" : "scale-100 opacity-100"
+        } bg-white rounded-lg p-4 mb-4 shadow-sm hover:shadow-md transition-shadow`}
+      >
+        <div className="flex flex-col sm:flex-row items-center gap-4">
+          <div className="relative group w-32 h-32">
+            <img
+              src={item.customDesign || item.imageUrl}
+              alt={item.title}
+              className="w-full h-full object-cover rounded-lg"
+            />
+            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-200 rounded-lg" />
+          </div>
+
+          <div className="flex-1 min-w-0">
+            <h3 className="text-lg font-semibold text-gray-800 mb-1">
+              {item.title}
+            </h3>
+            <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+              {item.description}
+            </p>
+            <div className="flex items-center justify-between">
+              <span className="text-lg font-medium text-gray-900">
+                ₹{Number(item.price).toLocaleString()}
+              </span>
+
+              <div className="flex items-center gap-3">
+                <div className="flex items-center rounded-lg border border-gray-200">
                   <button
-                    onClick={proceedToCheckout}
-                    className="w-full px-4 py-2 bg-primary text-white font-semibold rounded-md"
+                    onClick={() =>
+                      handleQuantityChange(item, Number(item.quantity) - 1)
+                    }
+                    className="p-2 hover:bg-gray-100 rounded-l-lg transition-colors"
+                    aria-label="Decrease quantity"
                   >
-                    Proceed to Checkout
+                    <Minus size={16} />
+                  </button>
+                  <input
+                    type="number"
+                    className="w-16 text-center bg-transparent border-none focus:outline-none text-gray-800"
+                    value={localQuantity}
+                    onChange={handleQuantityInputChange}
+                    onBlur={handleQuantityInputBlur}
+                    min="1"
+                    max="10000"
+                  />
+                  <button
+                    onClick={() =>
+                      handleQuantityChange(item, Number(item.quantity) + 1)
+                    }
+                    className="p-2 hover:bg-gray-100 rounded-r-lg transition-colors"
+                    aria-label="Increase quantity"
+                  >
+                    <Plus size={16} />
                   </button>
                 </div>
+
+                <button
+                  onClick={handleDelete}
+                  className="p-2 text-gray-500 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                  aria-label="Remove item"
+                >
+                  <Trash2 size={18} />
+                </button>
               </div>
             </div>
           </div>
-        ) : (
-          <div className="text-center">
-            <h2 className="text-lg font-semibold text-gray-600">
-              Your cart is empty.
-            </h2>
-            <button
-              onClick={() => navigate("/")}
-              className="mt-4 px-4 py-2 bg-primary text-white rounded-md"
-            >
-              Continue Shopping
-            </button>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <Layout>
+      <div className="min-h-screen bg-bgLight py-8 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-between mb-8">
+            <h1 className="text-2xl font-bold text-primary">Shopping Cart</h1>
+            <div className="flex items-center gap-4">
+              {cartItems.length > 0 && (
+                <button
+                  onClick={generatePDF}
+                  className="flex items-center gap-2 px-4 py-2 text-primary hover:bg-primary hover:text-white rounded-lg transition-colors"
+                >
+                  <Download size={18} />
+                  Download Invoice
+                </button>
+              )}
+              <span className="text-sm text-gray-500">
+                {cartItems.length} {cartItems.length === 1 ? "item" : "items"}
+              </span>
+            </div>
           </div>
-        )}
+
+          {cartItems.length > 0 ? (
+            <div className="lg:grid lg:grid-cols-12 lg:gap-8">
+              <div className="lg:col-span-8">
+                <div className="space-y-4">
+                  {cartItems.map((item) => (
+                    <CartItem key={item.id} item={item} />
+                  ))}
+                </div>
+              </div>
+
+              <div className="lg:col-span-4 mt-8 lg:mt-0">
+                <div className="bg-white rounded-lg shadow-sm p-6 sticky top-4">
+                  <h2 className="text-lg font-medium text-gray-900 mb-4">
+                    Order Summary
+                  </h2>
+
+                  <div className="space-y-4">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Subtotal</span>
+                      <span className="font-medium text-gray-900">
+                        ₹{subtotal.toLocaleString()}
+                      </span>
+                    </div>
+
+                    <div className="border-t border-gray-200 pt-4">
+                      <button
+                        onClick={proceedToCheckout}
+                        disabled={isLoading}
+                        className="w-full bg-primary text-white py-3 px-4 rounded-lg font-medium
+                          hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2
+                          disabled:opacity-70 disabled:cursor-not-allowed transition-colors
+                          flex items-center justify-center gap-2"
+                      >
+                        {isLoading ? (
+                          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                          <>
+                            <ShoppingBag size={18} />
+                            Proceed to Checkout
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-16 bg-white rounded-lg shadow-sm">
+              <ShoppingBag size={48} className="mx-auto text-gray-400 mb-4" />
+              <h2 className="text-xl font-medium text-gray-900 mb-2">
+                Your cart is empty
+              </h2>
+              <p className="text-gray-500 mb-6">
+                Looks like you haven't added anything to your cart yet.
+              </p>
+              <button
+                onClick={() => navigate("/")}
+                className="inline-flex items-center px-6 py-3 bg-primary text-white rounded-lg
+                  hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2
+                  transition-colors"
+              >
+                Continue Shopping
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </Layout>
   );

@@ -32,11 +32,13 @@ import ContactUs from "./pages/contact-us/ContactUs.jsx";
 import TermsAndConditions from "./pages/terms-and-conditions/TermsAndConditions.jsx";
 import CancellationPolicy from "./pages/cancelation/CancelationPolicy.jsx";
 import ShippingDeliveryPolicy from "./pages/shipping-delivery-policy/ShippingDeliveryPolicy.jsx";
+import ScrollToTop from "./components/scrollToTop/ScrollToTop.jsx";
 import OrderStatus from "./pages/order-status/OrderStatus.jsx";
 function App() {
   return (
     <MyState>
       <Router>
+        <ScrollToTop /> {/* Add this inside Router */}
         <Routes>
           {" "}
           <Route path="/" element={<Home />} />
@@ -97,13 +99,11 @@ function App() {
           <Route path="/category/:category" element={<Category />} />
         </Routes>
         <ToastContainer
-          position="bottom-right"
-          autoClose={700}
-          hideProgressBar={false}
-          newestOnTop={false}
+          position="bottom-center"
+          autoClose={2000}
+          hideProgressBar
           closeOnClick
-          rtl={false}
-          draggable
+          theme="dark"
           pauseOnHover
         />{" "}
       </Router>

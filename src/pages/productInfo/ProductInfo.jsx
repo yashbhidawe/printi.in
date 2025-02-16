@@ -355,7 +355,7 @@ function ProductInfo() {
                     <div
                       key={product.id}
                       className="bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow duration-300"
-                      onClick={() => navigate(`/product/${product.id}`)}
+                      onClick={() => navigate(`/productinfo/${product.id}`)}
                     >
                       <img
                         src={product.imageUrl}

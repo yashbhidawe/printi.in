@@ -26,6 +26,15 @@ function Order() {
   const [sortOrder, setSortOrder] = useState("desc");
   const [expandedOrders, setExpandedOrders] = useState({});
 
+  const addressInfo = {
+    name: user.displayName || "Customer",
+    address: `${user.houseNumber || ""}, ${user.streetName || ""}, ${
+      user.city || ""
+    }, ${user.state || ""} - ${user.postalCode || ""}`,
+    pincode: user.postalCode || "N/A",
+    phoneNumber: user.phoneNumber || "N/A",
+  };
+
   if (!userid) {
     return (
       <Layout>
@@ -46,7 +55,7 @@ function Order() {
   }
 
   const filteredOrders = order
-    .filter((obj) => obj.userid === userid)
+    .filter((obj) => obj.userId === userid)
     .filter((order) =>
       order.cartItems.some((item) =>
         item.title.toLowerCase().includes(searchTerm.toLowerCase())
@@ -96,13 +105,15 @@ function Order() {
   };
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
+    return new Date(dateString)
+      .toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      })
+      .replace(/\s/g, " ");
   };
-
+  console.log(order);
   return (
     <Layout>
       {filteredOrders.length > 0 ? (
@@ -168,12 +179,12 @@ function Order() {
                           <div>
                             <div className="flex items-center gap-2 text-sm text-gray-500">
                               <Calendar className="h-4 w-4" />
-                              {formatDate(order.date)}
+                              {order.addressInfo.date}
                             </div>
                             <div className="flex items-center gap-2 mt-1">
                               <MapPin className="h-4 w-4 text-gray-400" />
                               <span className="text-sm text-gray-600">
-                                {user.address}
+                                {order.addressInfo.address}
                               </span>
                             </div>
                           </div>

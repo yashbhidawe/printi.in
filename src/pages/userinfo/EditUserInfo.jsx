@@ -10,6 +10,30 @@ const getUserFromLocalStorage = () => {
   return user ? JSON.parse(user) : null;
 };
 
+// Memoized FormInput component outside main component
+const FormInput = React.memo(
+  ({ icon: Icon, label, name, type = "text", value, onChange, error }) => (
+    <div className="space-y-2">
+      <label className="block text-sm font-medium text-gray-700">
+        <div className="flex items-center gap-2">
+          <Icon size={16} className="text-primary" />
+          {label}
+        </div>
+      </label>
+      <input
+        type={type}
+        name={name}
+        value={value}
+        onChange={onChange}
+        className={`mt-1 p-2 pl-3 block w-full rounded-md border ${
+          error ? "border-red-500" : "border-gray-300"
+        } shadow-sm focus:border-primary focus:ring focus:ring-primary-light focus:ring-opacity-50 transition-colors`}
+      />
+      {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
+    </div>
+  )
+);
+
 const EditUserInfo = () => {
   const currentUser = getUserFromLocalStorage();
   const userId = currentUser ? currentUser.uid : null;
@@ -58,7 +82,6 @@ const EditUserInfo = () => {
       [name]: value,
     }));
     setIsDirty(true);
-    // Clear error when user starts typing
     if (errors[name]) {
       setErrors((prev) => ({
         ...prev,
@@ -125,30 +148,6 @@ const EditUserInfo = () => {
     }
   };
 
-  const FormInput = ({ icon: Icon, label, name, type = "text", ...props }) => (
-    <div className="space-y-2">
-      <label className="block text-sm font-medium text-gray-700">
-        <div className="flex items-center gap-2">
-          <Icon size={16} className="text-primary" />
-          {label}
-        </div>
-      </label>
-      <input
-        type={type}
-        name={name}
-        value={userInfo[name]}
-        onChange={handleChange}
-        className={`mt-1 p-2 pl-3 block w-full rounded-md border ${
-          errors[name] ? "border-red-500" : "border-gray-300"
-        } shadow-sm focus:border-primary focus:ring focus:ring-primary-light focus:ring-opacity-50 transition-colors`}
-        {...props}
-      />
-      {errors[name] && (
-        <p className="text-red-500 text-xs mt-1">{errors[name]}</p>
-      )}
-    </div>
-  );
-
   if (isLoading && !isDirty) {
     return (
       <Layout>
@@ -180,20 +179,26 @@ const EditUserInfo = () => {
                 icon={User}
                 label="Full Name"
                 name="displayName"
-                placeholder="Enter your full name"
+                value={userInfo.displayName}
+                onChange={handleChange}
+                error={errors.displayName}
               />
               <FormInput
                 icon={Mail}
                 label="Email Address"
                 name="email"
                 type="email"
-                placeholder="Enter your email"
+                value={userInfo.email}
+                onChange={handleChange}
+                error={errors.email}
               />
               <FormInput
                 icon={Phone}
                 label="Phone Number"
                 name="phoneNumber"
-                placeholder="Enter your phone number"
+                value={userInfo.phoneNumber}
+                onChange={handleChange}
+                error={errors.phoneNumber}
               />
             </div>
 
@@ -206,31 +211,41 @@ const EditUserInfo = () => {
                 icon={Home}
                 label="House Number"
                 name="houseNumber"
-                placeholder="Enter house number"
+                value={userInfo.houseNumber}
+                onChange={handleChange}
+                error={errors.houseNumber}
               />
               <FormInput
                 icon={Home}
                 label="Street Name"
                 name="streetName"
-                placeholder="Enter street name"
+                value={userInfo.streetName}
+                onChange={handleChange}
+                error={errors.streetName}
               />
               <FormInput
                 icon={MapPin}
                 label="City"
                 name="city"
-                placeholder="Enter city"
+                value={userInfo.city}
+                onChange={handleChange}
+                error={errors.city}
               />
               <FormInput
                 icon={MapPin}
                 label="State"
                 name="state"
-                placeholder="Enter state"
+                value={userInfo.state}
+                onChange={handleChange}
+                error={errors.state}
               />
               <FormInput
                 icon={MapPin}
                 label="PIN Code"
                 name="postalCode"
-                placeholder="Enter PIN code"
+                value={userInfo.postalCode}
+                onChange={handleChange}
+                error={errors.postalCode}
               />
             </div>
           </div>
@@ -241,7 +256,9 @@ const EditUserInfo = () => {
               icon={Camera}
               label="Profile Photo URL"
               name="photoURL"
-              placeholder="Enter photo URL"
+              value={userInfo.photoURL}
+              onChange={handleChange}
+              error={errors.photoURL}
             />
           </div>
 

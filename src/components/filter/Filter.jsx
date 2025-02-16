@@ -58,25 +58,6 @@ function Filter() {
             {/* Right side - Filter Controls */}
             <div className="flex flex-1 flex-wrap items-center gap-3">
               {/* Search */}
-              <div className="relative flex-1 min-w-[200px]">
-                <input
-                  type="text"
-                  placeholder="Search products..."
-                  value={searchKey}
-                  onChange={(e) => setSearchKey(e.target.value)}
-                  className={`w-full pl-8 pr-3 py-1.5 text-sm rounded border 
-                    ${
-                      isDark
-                        ? "bg-primaryLight border-primaryLight text-textLight placeholder-textLight/70"
-                        : "bg-white border-bgSecondary text-textDark placeholder-textDark/60"
-                    }
-                    focus:outline-none focus:ring-1 focus:ring-accent`}
-                />
-                <Search
-                  className={`h-3.5 w-3.5 absolute left-2.5 top-2 
-                  ${isDark ? "text-textLight/70" : "text-primary/60"}`}
-                />
-              </div>
 
               {/* Category Select */}
               <select

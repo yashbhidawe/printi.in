@@ -1,34 +1,22 @@
 import React, { useContext, useEffect } from "react";
-import Filter from "../../components/filter/Filter";
-import Layout from "../../components/layout/Layout.jsx";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../../redux/cartSlice";
 import { ToastContainer, toast } from "react-toastify";
 import MyContext from "../../context/data/MyContext.jsx";
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart, Eye, ArrowUpRight } from "lucide-react";
+import Filter from "../../components/filter/Filter";
+import Layout from "../../components/layout/Layout.jsx";
 
 function AllProducts() {
   const context = useContext(MyContext);
-  const {
-    product,
-    searchKey,
-    filterType,
-    filterPrice,
-    setSearchKey,
-    setFilterType,
-    setFilterPrice,
-  } = context;
-
+  const { product, searchKey, filterType, filterPrice } = context;
   const dispatch = useDispatch();
   const cartItems = useSelector((state) => state.cart);
 
   const addCart = (e, product) => {
     e.stopPropagation();
     dispatch(addToCart(product));
-    toast.success("Added to cart", {
-      position: "bottom-right",
-      autoClose: 2000,
-    });
+    toast.success("Added to cart");
   };
 
   useEffect(() => {
@@ -48,76 +36,84 @@ function AllProducts() {
 
   return (
     <Layout>
-      <Filter />
-      <section className="bg-bgLight min-h-screen">
-        <div className="container px-4 py-8 md:py-12 mx-auto">
-          {/* Header */}
-          <div className="max-w-2xl mb-8 md:mb-12">
-            <h1 className="text-3xl md:text-4xl font-bold text-primary mb-4">
-              Our Latest Collection
+      <div className="bg-white min-h-screen">
+        {/* Hero Section */}
+        <div className="bg-gradient-to-r from-gray-50 to-gray-100">
+          <div className="container mx-auto px-4 py-12">
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+              Discover Our Collection
             </h1>
-            <div className="h-1 w-20 bg-accent rounded"></div>
+            <p className="text-gray-600 text-lg max-w-2xl">
+              Explore our curated selection of premium products designed for
+              your lifestyle.
+            </p>
           </div>
+        </div>
 
-          {/* Product Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {/* Filters */}
+        <div className="border-b">
+          <div className="container mx-auto px-4 py-4">
+            <Filter />
+          </div>
+        </div>
+
+        {/* Products Grid */}
+        <div className="container mx-auto px-4 py-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {filteredProducts.map((item, index) => (
               <div
                 key={index}
-                className="group flex flex-col bg-white rounded-xl shadow-sm hover:shadow-lg 
-                          border border-transparent hover:border-accent
-                          transition-all duration-300 overflow-hidden h-full"
-                onClick={() =>
-                  (window.location.href = `/productinfo/${item.id}`)
-                }
+                className="group relative bg-white rounded-lg overflow-hidden"
               >
-                {/* Image Container - Fixed Height */}
-                <div className="relative aspect-w-4 aspect-h-3 w-full overflow-hidden bg-bgSecondary">
+                {/* Image Container */}
+                <div className="aspect-[4/5] overflow-hidden bg-gray-100 rounded-lg">
                   <img
-                    className="w-full h-48 object-cover transition-transform duration-300 
-                             group-hover:scale-110"
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                     src={item.imageUrl}
                     alt={item.title}
                   />
-                  <div
-                    className="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 
-                                transition-opacity duration-300"
-                  />
-                </div>
 
-                {/* Content Container - Flex Column with Fixed Height */}
-                <div className="flex flex-col flex-grow p-4">
-                  {/* Category */}
-                  <div className="mb-2">
-                    <span
-                      className="inline-block px-2.5 py-1 text-xs font-medium 
-                                   bg-bgLight text-primary rounded-full"
+                  {/* Quick Action Buttons */}
+                  <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 transform translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
+                    <button
+                      onClick={(e) => addCart(e, item)}
+                      className="p-2 bg-white rounded-full shadow-lg hover:bg-gray-50 transition-colors"
                     >
-                      {item.category}
-                    </span>
+                      <ShoppingCart className="w-4 h-4 text-gray-600" />
+                    </button>
+                    <button
+                      onClick={() =>
+                        (window.location.href = `/productinfo/${item.id}`)
+                      }
+                      className="p-2 bg-white rounded-full shadow-lg hover:bg-gray-50 transition-colors"
+                    >
+                      <Eye className="w-4 h-4 text-gray-600" />
+                    </button>
                   </div>
 
-                  {/* Title - Fixed Height with Ellipsis */}
-                  <h1 className="text-textDark font-semibold mb-2 line-clamp-2 min-h-[48px]">
-                    {item.title}
-                  </h1>
+                  {/* Category Tag */}
+                  <span className="absolute top-4 left-4 px-3 py-1 text-xs font-medium bg-black/60 text-white rounded-full">
+                    {item.category}
+                  </span>
+                </div>
 
-                  {/* Price and Button Container - Push to Bottom */}
-                  <div className="mt-auto">
-                    <p className="text-primary text-xl font-bold mb-3">
+                {/* Product Info */}
+                <div className="p-4">
+                  <h2 className="text-lg font-medium text-gray-900 mb-2 line-clamp-1">
+                    {item.title}
+                  </h2>
+
+                  <div className="flex items-center justify-between">
+                    <p className="text-lg font-semibold text-gray-900">
                       ₹{item.price.toLocaleString("en-IN")}
                     </p>
                     <button
-                      type="button"
-                      className="w-full flex items-center justify-center gap-2 
-                                bg-primary hover:bg-primaryLight text-white 
-                                font-medium py-2.5 px-4 rounded-lg transition-colors 
-                                duration-300 focus:outline-none focus:ring-2 
-                                focus:ring-primary focus:ring-offset-2"
-                      onClick={(e) => addCart(e, item)}
+                      onClick={() =>
+                        (window.location.href = `/productinfo/${item.id}`)
+                      }
+                      className="text-gray-600 hover:text-gray-900 transition-colors"
                     >
-                      <ShoppingCart className="w-5 h-5" />
-                      Add To Cart
+                      <ArrowUpRight className="w-5 h-5" />
                     </button>
                   </div>
                 </div>
@@ -125,8 +121,15 @@ function AllProducts() {
             ))}
           </div>
         </div>
-        <ToastContainer />
-      </section>
+
+        <ToastContainer
+          position="bottom-center"
+          autoClose={2000}
+          hideProgressBar
+          closeOnClick
+          theme="dark"
+        />
+      </div>
     </Layout>
   );
 }

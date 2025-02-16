@@ -8,109 +8,95 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 app.use(cors());
-app.use(express.urlencoded({ extended: true }));
 
-// Debug logging for incoming requests
-app.use((req, res, next) => {
-  console.log(`Incoming ${req.method} request on ${req.path}`);
-  next();
-});
+// Initialize Cashfree
+Cashfree.XClientId = process.env.CLIENT_ID;
+Cashfree.XClientSecret = process.env.CLIENT_SECRET;
+Cashfree.XEnvironment = Cashfree.Environment.PRODUCTION;
 
-// Initialize Cashfree credentials
-try {
-  Cashfree.XClientId = process.env.CLIENT_ID;
-  Cashfree.XClientSecret = process.env.CLIENT_SECRET;
-  Cashfree.XEnvironment = Cashfree.Environment.SANDBOX;
-  console.log("Cashfree initialized with Client ID:", process.env.CLIENT_ID);
-} catch (error) {
-  console.error("Cashfree initialization error:", error);
-}
-
-/**
- * Single endpoint for creating an order (if no orderId query parameter)
- * or verifying a payment (if orderId is provided in query params).
- */
-app.post("/process-payment", async (req, res) => {
-  // If an orderId is passed as a query parameter, verify the payment
-  if (req.query.orderId) {
-    const orderId = req.query.orderId;
-    console.log("Verifying payment for orderId:", orderId);
-    try {
-      const response = await Cashfree.PGOrderFetchPayment(
-        "2023-08-01",
-        orderId
-      );
-      console.log("Verification response:", response.data);
-      if (response.data.payment_status === "SUCCESS") {
-        res.json({
-          success: true,
-          payment_status: "SUCCESS",
-          data: response.data,
-        });
-      } else {
-        res.json({
-          success: false,
-          payment_status: response.data.payment_status || "PENDING",
-        });
-      }
-    } catch (error) {
-      console.error(
-        "Verification error:",
-        error.response?.data || error.message
-      );
-      res.status(500).json({
-        success: false,
-        error: "Payment verification failed",
-        details: error.response?.data || error.message,
-      });
-    }
-    return;
-  }
-
-  // Otherwise, create a new Cashfree order
+// Create order endpoint
+app.post("/create-order", async (req, res) => {
   try {
-    console.log("Received order creation request with body:", req.body);
     const { amount, customerName, customerEmail, customerPhone } = req.body;
-    if (!amount || !customerName || !customerEmail || !customerPhone) {
+
+    // Validate input
+    if (!amount || !customerEmail) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
-    // Generate an orderId
-    const orderId = crypto.randomBytes(16).toString("hex").substring(0, 12);
-    console.log("Generated orderId:", orderId);
+    const orderId = crypto.randomBytes(12).toString("hex");
+    const customerId = crypto.randomBytes(6).toString("hex");
 
-    const requestPayload = {
+    const orderData = {
       order_amount: parseFloat(amount),
       order_currency: "INR",
       order_id: orderId,
       customer_details: {
-        customer_id: crypto.randomBytes(8).toString("hex"),
-        customer_phone: customerPhone,
-        customer_name: customerName,
+        customer_id: customerId,
+        customer_name: customerName || "Customer",
         customer_email: customerEmail,
+        customer_phone: customerPhone || "9999999999",
       },
       order_meta: {
-        return_url: "http://localhost:5173/checkout", // Your client return URL
+        return_url: `http://localhost:5173/checkout?order_id=${orderId}`,
         payment_methods: "cc,dc,upi",
       },
     };
 
-    console.log("Sending request to Cashfree:", requestPayload);
-    const response = await Cashfree.PGCreateOrder("2023-08-01", requestPayload);
-    console.log("Cashfree response:", response.data);
-    res.json(response.data);
+    const response = await Cashfree.PGCreateOrder("2023-08-01", orderData);
+
+    res.json({
+      success: true,
+      payment_session_id: response.data.payment_session_id,
+      order_id: orderId,
+    });
   } catch (error) {
-    console.error(
-      "Error creating Cashfree order:",
-      error.response?.data || error.message
-    );
+    console.error("Order creation error:", error);
     res.status(500).json({
-      error: "Failed to create order",
+      success: false,
+      error: "Order creation failed",
       details: error.response?.data || error.message,
     });
   }
 });
 
-app.listen(5000, () => {
-  console.log("Server running on port 5000");
+// Verify payment endpoint
+app.post("/verify-payment", async (req, res) => {
+  try {
+    const { orderId } = req.query;
+
+    if (!orderId) {
+      return res.status(400).json({ error: "Order ID is required" });
+    }
+
+    const paymentDetails = await Cashfree.PGOrderFetchPayments(
+      "2023-08-01",
+      orderId
+    );
+    const payments = paymentDetails.data || [];
+
+    if (payments.length === 0) {
+      return res.status(404).json({ error: "No payments found" });
+    }
+
+    const latestPayment = payments[0];
+    const paymentStatus = latestPayment.payment_status;
+
+    res.json({
+      success: paymentStatus === "SUCCESS",
+      payment_status: paymentStatus,
+      cf_payment_id: latestPayment.cf_payment_id,
+      order_amount: latestPayment.order_amount,
+    });
+  } catch (error) {
+    console.error("Verification error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Payment verification failed",
+      details: error.message,
+    });
+  }
 });
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

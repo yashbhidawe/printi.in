@@ -75,6 +75,17 @@ const TemplateSelector = ({ templates, onTemplateSelect }) => {
           </div>
         ))}
       </div>
+
+      {/* Stylish Advertisement Section */}
+      <div className="mt-10 p-6 bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-center rounded-lg shadow-lg">
+        <h3 className="text-xl font-semibold">
+          Didn't find what you were looking for?
+        </h3>
+        <p className="mt-2 text-lg">
+          We can customize it for you! Call or WhatsApp us at:
+        </p>
+        <p className="mt-3 text-2xl font-bold">+91 80078 00493</p>
+      </div>
     </div>
   );
 };

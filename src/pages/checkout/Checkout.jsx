@@ -1,195 +1,190 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { fireDB } from "../../firebase/FirebaseConfig";
 import Layout from "../../components/layout/Layout";
+import { serverTimestamp } from "firebase/firestore";
 import { addDoc, collection } from "firebase/firestore";
 import { load } from "@cashfreepayments/cashfree-js";
+import { query, where, getDocs } from "firebase/firestore";
 import axios from "axios";
-import MyContext from "../../context/data/MyContext";
-import { v4 as uuidv4 } from "uuid";
 
 function Checkout() {
-  const context = useContext(MyContext);
-  const { mode } = context;
   const cartItems = useSelector((state) => state.cart);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
-  const [totalAmount, setTotalAmount] = useState(0);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [cashfree, setCashfree] = useState(null);
-  const [orderId, setOrderId] = useState("");
+  const user = JSON.parse(localStorage.getItem("user")) || {};
+
+  // Calculate order totals
+  const totalAmount = cartItems.reduce(
+    (sum, item) =>
+      sum + parseInt(item.price || 0) * parseInt(item.quantity || 1),
+    0
+  );
+  const shipping = totalAmount > 1500 ? 0 : 100;
+  const grandTotal = totalAmount + shipping;
 
   // Initialize Cashfree SDK
   useEffect(() => {
-    const initializeSDK = async () => {
-      try {
-        const instance = await load({ mode: "sandbox" });
-        setCashfree(instance);
-      } catch (error) {
-        console.error("Cashfree SDK initialization failed:", error);
+    load({ mode: "production" })
+      .then((instance) => setCashfree(instance))
+      .catch((error) => {
+        console.error("Cashfree init error:", error);
+        toast.error("Payment system initialization failed");
+      });
+  }, []);
+
+  // Payment verification handler
+  useEffect(() => {
+    const verifyPaymentOnLoad = async () => {
+      const params = new URLSearchParams(window.location.search);
+      const orderId = params.get("order_id");
+
+      if (orderId && !isProcessing) {
+        await verifyPayment(orderId);
       }
     };
-    initializeSDK();
+    verifyPaymentOnLoad();
   }, []);
 
-  // Calculate total amount
-  useEffect(() => {
-    let temp = 0;
-    cartItems.forEach((item) => {
-      temp += parseInt(item.price) * parseInt(item.quantity);
-    });
-    setTotalAmount(temp);
-  }, [cartItems]);
-
-  let shipping = totalAmount > 1500 ? 0 : 100;
-  const grandTotal = shipping + totalAmount;
-
-  useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(cartItems));
-  }, [cartItems]);
-
-  // Retrieve user details from localStorage
-  const getUserFromLocalStorage = () => {
-    const user = localStorage.getItem("user");
-    return user ? JSON.parse(user) : null;
-  };
-  const user = getUserFromLocalStorage();
-
-  // Check if user address is complete
-  const isAddressEmpty = () => {
-    if (user) {
-      const { houseNumber, streetName, city, state, postalCode } = user;
-      return !houseNumber || !streetName || !city || !state || !postalCode;
-    }
-    return true;
+  // Validate user address information
+  const validateAddress = () => {
+    if (!user) return false;
+    const requiredFields = [
+      "houseNumber",
+      "streetName",
+      "city",
+      "state",
+      "postalCode",
+    ];
+    return requiredFields.every((field) => Boolean(user[field]));
   };
 
-  // Generate a unique order ID
-  const generateOrderId = () => uuidv4();
+  // Payment verification function
 
-  // Clear the cart (both Redux store and localStorage)
-  const clearCart = () => {
-    dispatch({ type: "CLEAR_CART" });
-    localStorage.setItem("cart", JSON.stringify([]));
-  };
-
-  // Create a Cashfree order by calling your backend /payment endpoint
-  const createOrder = async () => {
+  const verifyPayment = async (orderId) => {
     try {
-      const paymentData = {
-        amount: grandTotal,
-        customerName: user.displayName,
-        customerEmail: user.email,
-        customerPhone: user.phoneNumber,
-      };
+      setIsProcessing(true);
       const response = await axios.post(
-        "http://localhost:5000/payment",
-        paymentData,
-        {
-          headers: { "Content-Type": "application/json" },
-        }
+        `http://localhost:5000/verify-payment?orderId=${orderId}`
       );
-      if (response.data && response.data.payment_session_id) {
-        setOrderId(response.data.order_id);
-        // Save pending order details for later verification
-        const orderDetails = {
-          items: cartItems,
-          amount: grandTotal,
-          shipping,
-          totalAmount,
-          timestamp: new Date().toISOString(),
-          status: "pending",
-          customerName: user.displayName,
-          customerEmail: user.email,
-          customerPhone: user.phoneNumber,
-          shippingAddress: {
-            houseNumber: user.houseNumber,
-            streetName: user.streetName,
-            city: user.city,
-            state: user.state,
-            postalCode: user.postalCode,
+
+      if (response.data.success && response.data.payment_status === "SUCCESS") {
+        const pendingOrder =
+          JSON.parse(localStorage.getItem("pendingOrder")) || {};
+
+        const ordersRef = collection(fireDB, "orders");
+        const q = query(
+          ordersRef,
+          where("orderId", "==", pendingOrder.orderId)
+        );
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+          console.warn("Order already exists, skipping duplicate entry.");
+          return; // Prevent duplicate order addition
+        }
+
+        // ✅ If the order doesn't exist, proceed
+        const orderInfo = {
+          addressInfo: {
+            name: user.displayName || "Customer",
+            address: `${user.houseNumber || ""}, ${user.streetName || ""}, ${
+              user.city || ""
+            }, ${user.state || ""} - ${user.postalCode || ""}`,
+            pincode: user.postalCode || "N/A",
+            phoneNumber: user.phoneNumber || "N/A",
+            date: new Date().toLocaleDateString("en-GB", {
+              day: "numeric",
+              month: "short",
+              year: "numeric",
+            }),
           },
-          orderId: response.data.order_id,
+          cartItems: (pendingOrder.cartItems || []).map((item) => ({
+            category: item.category || "General",
+            date: item.date || new Date().toISOString(),
+            description: item.description || "No description",
+            id: item.id || crypto.randomUUID(),
+            imageUrl: item.imageUrl || "",
+            price: parseFloat(item.price || 0),
+            quantity: parseInt(item.quantity || 1),
+            title: item.title || "Untitled Item",
+          })),
+          time: serverTimestamp(),
+          email: user.email || "N/A",
+          orderId: pendingOrder.orderId || "N/A",
+          paymentId: response.data.cf_payment_id || "N/A",
+          status: "pending",
+          userId: user.uid || "unknown",
         };
-        localStorage.setItem("pendingOrder", JSON.stringify(orderDetails));
-        return response.data.payment_session_id;
-      } else {
-        throw new Error("Missing payment_session_id in response");
-      }
-    } catch (error) {
-      console.error("Error creating Cashfree order:", error);
-      toast.error("Failed to create order");
-    }
-  };
 
-  // Verify payment by calling backend /process-payment?orderId=...
-  const verifyPayment = async (orderIdParam) => {
-    try {
-      const response = await axios.post(
-        `http://localhost:5000/process-payment?orderId=${orderIdParam}`
-      );
-      if (response.data?.payment_status === "SUCCESS") {
-        // Retrieve pending order details saved earlier
-        const pendingOrder = JSON.parse(localStorage.getItem("pendingOrder"));
-        if (pendingOrder) {
-          // Add order info to Firestore
-          await addDoc(collection(fireDB, "orders"), {
-            ...pendingOrder,
-            userId: user.uid,
-            status: "completed",
-            paymentId: response.data.cf_payment_id,
-            paymentStatus: response.data.payment_status,
-          });
-          clearCart();
-          localStorage.removeItem("pendingOrder");
-          toast.success("Order placed successfully!");
-          navigate("/order");
-        } else {
-          toast.error("Pending order details not found");
-        }
-      } else {
-        toast.error("Payment verification failed");
+        // ✅ Save the order in Firestore
+        await addDoc(collection(fireDB, "orders"), orderInfo);
+
+        // ✅ Cleanup storage after order is successfully placed
+        dispatch({ type: "CLEAR_CART" });
+        localStorage.setItem("cart", "[]");
         localStorage.removeItem("pendingOrder");
+
+        toast.success("Order placed successfully!");
+        navigate("/order");
       }
     } catch (error) {
-      console.error("Verification error:", error);
-      toast.error("Payment verification failed. Please contact support.");
-      localStorage.removeItem("pendingOrder");
+      console.error("Order processing error:", error);
+      toast.error(error.response?.data?.error || "Order processing failed");
+    } finally {
+      setIsProcessing(false);
     }
   };
 
-  // On mount, check if URL contains payment status and order ID
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const paymentStatus = params.get("payment_status");
-    const orderIdParam = params.get("order_id");
-    if (paymentStatus === "SUCCESS" && orderIdParam) {
-      verifyPayment(orderIdParam);
-    }
-  }, []);
-
-  // Handle checkout process
+  // Handle checkout initiation
   const handleCheckout = async () => {
-    if (isAddressEmpty()) {
-      toast.error("Please add address to proceed further");
-      setTimeout(() => {
-        navigate("/edituserinfo");
-      }, 100);
+    if (!validateAddress()) {
+      toast.error("Please complete your address information first");
+      navigate("/edituserinfo");
       return;
     }
-    if (!cashfree) {
-      toast.error("Payment SDK not initialized");
-      return;
-    }
-    const sessionId = await createOrder();
-    if (sessionId) {
-      const checkoutOptions = {
-        paymentSessionId: sessionId,
-        redirectTarget: "_self",
+
+    try {
+      setIsProcessing(true);
+
+      // Create Cashfree order
+      const response = await axios.post("http://localhost:5000/create-order", {
+        amount: grandTotal,
+        customerName: user.displayName || "Customer",
+        customerEmail: user.email,
+        customerPhone: user.phoneNumber || "9999999999",
+      });
+
+      // Store pending order locally
+      const pendingOrder = {
+        cartItems: cartItems.map((item) => ({
+          ...item,
+          price: parseFloat(item.price),
+          quantity: parseInt(item.quantity),
+        })),
+        grandTotal,
+        userId: user.uid,
+        orderId: response.data.order_id,
       };
-      cashfree.checkout(checkoutOptions);
+
+      localStorage.setItem("pendingOrder", JSON.stringify(pendingOrder));
+
+      // Initialize Cashfree checkout
+      await cashfree.checkout({
+        paymentSessionId: response.data.payment_session_id,
+        redirectTarget: "_self",
+      });
+    } catch (error) {
+      console.error("Checkout error:", error);
+      toast.error(
+        error.response?.data?.error || "Checkout initialization failed"
+      );
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -197,16 +192,33 @@ function Checkout() {
     <Layout>
       <div className="p-6 bg-white rounded shadow-md max-w-md mx-auto mt-10">
         <h2 className="text-xl font-bold mb-4">Order Summary</h2>
-        <p className="mb-2">Subtotal: ₹{totalAmount}</p>
-        <p className="mb-2">
-          Shipping: ₹{shipping} {shipping === 0 && "(Free)"}
-        </p>
-        <p className="mb-4">Grand Total: ₹{grandTotal}</p>
+        <div className="space-y-2 mb-4">
+          <div className="flex justify-between">
+            <span>Subtotal:</span>
+            <span>₹{totalAmount}</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Shipping:</span>
+            <span>
+              ₹{shipping} {shipping === 0 && "(Free)"}
+            </span>
+          </div>
+          <div className="flex justify-between font-bold border-t pt-2">
+            <span>Grand Total:</span>
+            <span>₹{grandTotal}</span>
+          </div>
+        </div>
+
         <button
           onClick={handleCheckout}
-          className="w-full bg-primary text-white py-2 rounded"
+          disabled={!cashfree || isProcessing}
+          className={`w-full py-2 rounded-md text-white transition-colors ${
+            isProcessing || !cashfree
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-primary hover:bg-primary-dark"
+          }`}
         >
-          Proceed to Payment
+          {isProcessing ? "Processing..." : "Proceed to Payment"}
         </button>
       </div>
     </Layout>

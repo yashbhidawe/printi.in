@@ -5,6 +5,11 @@ import Filter from "../../components/filter/Filter.jsx";
 import Carousel from "../../components/carousel/Caraousel.jsx";
 import ProductCard from "../../components/productCard/ProductCard.jsx";
 import MyContext from "../../context/data/MyContext.jsx";
+import {
+  Benefits,
+  FeaturedCategories,
+  FeaturedCollection,
+} from "../../components/additional/Additional.jsx";
 
 function Home() {
   const { searchKey, filterType, product } = useContext(MyContext);
@@ -19,7 +24,9 @@ function Home() {
   return (
     <Layout>
       <Hero />
-      <Carousel />
+      <FeaturedCategories />
+      <FeaturedCollection />
+      <Benefits />
       <Filter />
       <section className="text-gray-600 body-font bg-bgLight">
         <div className="container px-5 py-8 md:py-16 mx-auto">

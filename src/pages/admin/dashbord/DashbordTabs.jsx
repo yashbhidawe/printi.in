@@ -376,7 +376,7 @@ function DashboardTab() {
                                 {allorder.email}
                               </td>{" "}
                               <td className="px-6 py-4 text-black">
-                                {allorder.date}
+                                {allorder.addressInfo.date}
                               </td>{" "}
                               <td className="px-6 py-4">
                                 {" "}
@@ -440,12 +440,12 @@ function DashboardTab() {
                         Uid
                       </th>
                       <th scope="col" className="px-6 py-3">
-                        Date
+                        Phone No.
                       </th>
                     </tr>
                   </thead>
                   {user.map((item, index) => {
-                    const { name, uid, email, date } = item;
+                    const { displayName, uid, email, phoneNumber } = item;
                     return (
                       <tbody key={uid}>
                         <tr
@@ -466,7 +466,7 @@ function DashboardTab() {
                             className="px-6 py-4 text-black "
                             style={{ color: mode === "dark" ? "white" : "" }}
                           >
-                            {name}
+                            {displayName}
                           </td>
                           <td
                             className="px-6 py-4 text-black "
@@ -484,7 +484,7 @@ function DashboardTab() {
                             className="px-6 py-4 text-black "
                             style={{ color: mode === "dark" ? "white" : "" }}
                           >
-                            {date}
+                            {phoneNumber}
                           </td>
                         </tr>
                       </tbody>
