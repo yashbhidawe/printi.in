@@ -69,7 +69,7 @@ function Checkout() {
     try {
       setIsProcessing(true);
       const response = await axios.post(
-        `http://localhost:5000/verify-payment?orderId=${orderId}`
+        `https://printi-in.onrender.com/verify-payment?orderId=${orderId}`
       );
 
       if (response.data.success && response.data.payment_status === "SUCCESS") {
@@ -152,12 +152,15 @@ function Checkout() {
       setIsProcessing(true);
 
       // Create Cashfree order
-      const response = await axios.post("http://localhost:5000/create-order", {
-        amount: grandTotal,
-        customerName: user.displayName || "Customer",
-        customerEmail: user.email,
-        customerPhone: user.phoneNumber || "9999999999",
-      });
+      const response = await axios.post(
+        "https://printi-in.onrender.com/create-order",
+        {
+          amount: grandTotal,
+          customerName: user.displayName || "Customer",
+          customerEmail: user.email,
+          customerPhone: user.phoneNumber || "9999999999",
+        }
+      );
 
       // Store pending order locally
       const pendingOrder = {

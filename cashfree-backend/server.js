@@ -38,7 +38,7 @@ app.post("/create-order", async (req, res) => {
         customer_phone: customerPhone || "9999999999",
       },
       order_meta: {
-        return_url: `http://localhost:5173/checkout?order_id=${orderId}`,
+        return_url: `https://printi.in/checkout?order_id=${orderId}`,
         payment_methods: "cc,dc,upi",
       },
     };
