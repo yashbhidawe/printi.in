@@ -24,7 +24,7 @@ function Checkout() {
       sum + parseInt(item.price || 0) * parseInt(item.quantity || 1),
     0
   );
-  const shipping = totalAmount > 1500 ? 0 : 100;
+  const shipping = totalAmount > 1500 ? 0 : 0; //Todo: Add shipping charges
   const grandTotal = totalAmount + shipping;
 
   // Initialize Cashfree SDK
