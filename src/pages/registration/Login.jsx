@@ -52,7 +52,7 @@ const handleUserLogin = async (user, navigate) => {
     await setDoc(doc(fireDB, "users", user.uid), userData, { merge: true });
 
     navigate(userData.role === "admin" ? "/dashboard" : "/");
-    toast.success("Logged in successfully", { position: "bottom-right" });
+    toast.success(`Welcome back, ${userData.displayName}!`);
   } catch (error) {
     console.error("Error handling user login:", error);
     toast.error("Failed to handle login. Please try again", {

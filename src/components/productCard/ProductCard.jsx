@@ -14,6 +14,13 @@ function ProductCard({ product }) {
 
   const { category, title, price, imageUrl, id } = product;
 
+  // Calculate fake original price (30% higher than actual price)
+  const fakeOriginalPrice = Math.ceil(price * 1.3);
+  const saveAmount = fakeOriginalPrice - price;
+  const discountPercentage = Math.round(
+    ((fakeOriginalPrice - price) / fakeOriginalPrice) * 100
+  );
+
   const handleImageLoad = () => setIsLoading(false);
 
   const addCart = async (e, product) => {
@@ -38,7 +45,10 @@ function ProductCard({ product }) {
   return (
     <div className="group bg-white rounded-lg shadow-sm overflow-hidden">
       {/* Image Container */}
-      <div className="relative overflow-hidden">
+      <div
+        className="relative overflow-hidden cursor-pointer"
+        onClick={navigateToProductInfo}
+      >
         {isLoading && (
           <div className="absolute inset-0 flex items-center justify-center bg-bgLight">
             <div className="w-6 h-6 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
@@ -53,23 +63,12 @@ function ProductCard({ product }) {
           onLoad={handleImageLoad}
         />
 
-        {/* Subtle Overlay with Quick View */}
-        <div
-          className="absolute inset-0 bg-black/0 group-hover:bg-black/5 
-          transition-colors duration-300 opacity-0 group-hover:opacity-100"
-        >
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              navigateToProductInfo();
-            }}
-            className="absolute bottom-4 right-4 p-2 bg-white/90 rounded-sm 
-              hover:bg-white transition-colors duration-200"
-            aria-label="Quick view"
-          >
-            <Eye className="w-4 h-4 text-primary" />
-          </button>
+        {/* Discount Badge */}
+        <div className="absolute top-3 left-3 bg-primary text-white text-xs font-medium px-2 py-1 rounded">
+          Save {discountPercentage}%
         </div>
+
+        {/* Subtle Overlay with Quick View */}
       </div>
 
       {/* Content */}
@@ -90,9 +89,19 @@ function ProductCard({ product }) {
 
         {/* Price and Add to Cart */}
         <div className="mt-4 flex items-center justify-between gap-4">
-          <span className="text-lg font-medium text-primary">
-            ₹{price.toLocaleString("en-IN")}
-          </span>
+          <div className="flex flex-col">
+            <div className="flex items-center gap-2">
+              <span className="text-lg font-medium text-primary">
+                ₹{price.toLocaleString("en-IN")}
+              </span>
+              <span className="text-sm text-gray-500 line-through">
+                ₹{fakeOriginalPrice.toLocaleString("en-IN")}
+              </span>
+            </div>
+            <span className="text-xs text-green-600">
+              Save ₹{saveAmount.toLocaleString("en-IN")}
+            </span>
+          </div>
 
           <button
             onClick={(e) => addCart(e, product)}

@@ -10,6 +10,7 @@ import {
   FeaturedCategories,
   FeaturedCollection,
 } from "../../components/additional/Additional.jsx";
+import FloatingAd from "../../components/floatingad/FloatingAd.jsx";
 
 function Home() {
   const { searchKey, filterType, product } = useContext(MyContext);
@@ -24,12 +25,13 @@ function Home() {
   return (
     <Layout>
       <Hero />
-      <FeaturedCategories />
+      {/*      <FeaturedCategories />
+       */}
       <FeaturedCollection />
-      <Benefits />
       <Filter />
       <section className="text-gray-600 body-font bg-bgLight">
         <div className="container px-5 py-8 md:py-16 mx-auto">
+          <FloatingAd />
           <div className="lg:w-1/2 w-full mb-6 lg:mb-10">
             <h1 className="sm:text-3xl text-2xl font-medium title-font mb-2 text-textDark">
               Our Latest Collection
@@ -44,6 +46,7 @@ function Home() {
             </div>
           </div>
         </div>
+        <Benefits />
       </section>
     </Layout>
   );

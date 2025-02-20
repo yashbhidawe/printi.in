@@ -1,6 +1,7 @@
 import React from "react";
 import Layout from "../../components/layout/Layout.jsx";
 import { Building2, Users, Sparkles, Heart } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const AboutUs = () => {
   const features = [
@@ -91,9 +92,11 @@ const AboutUs = () => {
               Thank you for choosing Printi.in as your go-to destination for all
               your personalized product needs.
             </p>
-            <button className="bg-primary hover:bg-primaryLight text-textLight px-8 py-3 rounded-full transition-colors duration-300">
-              Start Creating
-            </button>
+            <Link to="/customization">
+              <button className="bg-primary hover:bg-primaryLight text-textLight px-8 py-3 rounded-full transition-colors duration-300">
+                Start Creating
+              </button>
+            </Link>
           </div>
         </div>
       </div>

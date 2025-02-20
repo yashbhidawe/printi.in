@@ -24,7 +24,7 @@ function Checkout() {
       sum + parseInt(item.price || 0) * parseInt(item.quantity || 1),
     0
   );
-  const shipping = totalAmount > 1500 ? 0 : 0; //Todo: Add shipping charges
+  const shipping = totalAmount > 1500 ? 0 : 100;
   const grandTotal = totalAmount + shipping;
 
   // Initialize Cashfree SDK
@@ -52,6 +52,7 @@ function Checkout() {
 
   // Validate user address information
   const validateAddress = () => {
+    console.log(user ?? "No user found");
     if (!user) return false;
     const requiredFields = [
       "houseNumber",
@@ -193,7 +194,7 @@ function Checkout() {
 
   return (
     <Layout>
-      <div className="p-6 bg-white rounded shadow-md max-w-md mx-auto mt-10">
+      <div className="p-6 bg-white rounded shadow-md max-w-md mx-auto mt-10 min-h-screen flex flex-col justify-center items-center">
         <h2 className="text-xl font-bold mb-4">Order Summary</h2>
         <div className="space-y-2 mb-4">
           <div className="flex justify-between">

@@ -34,6 +34,7 @@ import CancellationPolicy from "./pages/cancelation/CancelationPolicy.jsx";
 import ShippingDeliveryPolicy from "./pages/shipping-delivery-policy/ShippingDeliveryPolicy.jsx";
 import ScrollToTop from "./components/scrollToTop/ScrollToTop.jsx";
 import OrderStatus from "./pages/order-status/OrderStatus.jsx";
+import Categories from "./pages/categories/Categories.jsx";
 function App() {
   return (
     <MyState>
@@ -44,6 +45,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/order" element={<Order />} />
           <Route path="/cart" element={<Cart />} />
+          <Route path="/categories" element={<Categories />} />
           <Route
             path="/dashboard"
             element={
