@@ -6,6 +6,7 @@ import MyContext from "../../context/data/MyContext.jsx";
 import { ShoppingCart, Eye, ArrowUpRight } from "lucide-react";
 import Filter from "../../components/filter/Filter";
 import Layout from "../../components/layout/Layout.jsx";
+import ProductCard from "../../components/productCard/ProductCard.jsx";
 
 function AllProducts() {
   const context = useContext(MyContext);
@@ -61,63 +62,7 @@ function AllProducts() {
         <div className="container mx-auto px-4 py-12">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {filteredProducts.map((item, index) => (
-              <div
-                key={index}
-                className="group relative bg-white rounded-lg overflow-hidden"
-              >
-                {/* Image Container */}
-                <div className="aspect-[4/5] overflow-hidden bg-gray-100 rounded-lg">
-                  <img
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    src={item.imageUrl}
-                    alt={item.title}
-                  />
-
-                  {/* Quick Action Buttons */}
-                  <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 transform translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
-                    <button
-                      onClick={(e) => addCart(e, item)}
-                      className="p-2 bg-white rounded-full shadow-lg hover:bg-gray-50 transition-colors"
-                    >
-                      <ShoppingCart className="w-4 h-4 text-gray-600" />
-                    </button>
-                    <button
-                      onClick={() =>
-                        (window.location.href = `/productinfo/${item.id}`)
-                      }
-                      className="p-2 bg-white rounded-full shadow-lg hover:bg-gray-50 transition-colors"
-                    >
-                      <Eye className="w-4 h-4 text-gray-600" />
-                    </button>
-                  </div>
-
-                  {/* Category Tag */}
-                  <span className="absolute top-4 left-4 px-3 py-1 text-xs font-medium bg-black/60 text-white rounded-full">
-                    {item.category}
-                  </span>
-                </div>
-
-                {/* Product Info */}
-                <div className="p-4">
-                  <h2 className="text-lg font-medium text-gray-900 mb-2 line-clamp-1">
-                    {item.title}
-                  </h2>
-
-                  <div className="flex items-center justify-between">
-                    <p className="text-lg font-semibold text-gray-900">
-                      ₹{item.price.toLocaleString("en-IN")}
-                    </p>
-                    <button
-                      onClick={() =>
-                        (window.location.href = `/productinfo/${item.id}`)
-                      }
-                      className="text-gray-600 hover:text-gray-900 transition-colors"
-                    >
-                      <ArrowUpRight className="w-5 h-5" />
-                    </button>
-                  </div>
-                </div>
-              </div>
+              <ProductCard key={index} product={item} />
             ))}
           </div>
         </div>
