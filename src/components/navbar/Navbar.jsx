@@ -7,6 +7,8 @@ import { RxCross2 } from "react-icons/rx";
 import { useSelector } from "react-redux";
 import SearchAndDisplay from "../search/SearchAndDisplay";
 
+import Logo from "../../../public/images/logo.png";
+
 function Navbar() {
   const [open, setOpen] = useState(false);
   const [showLoginTooltip, setShowLoginTooltip] = useState(false);
@@ -222,11 +224,7 @@ function Navbar() {
               <div className="ml-4 flex lg:ml-0">
                 <Link to={"/"} className="flex">
                   <div className="flex">
-                    <h1
-                      className={`text-2xl font-bold px-2 py-1 rounded ${"text-primary"}`}
-                    >
-                      printi
-                    </h1>
+                    <img src={Logo} className="w-36" />
                   </div>
                 </Link>
               </div>
