@@ -224,7 +224,7 @@ function Navbar() {
               <div className="ml-4 flex lg:ml-0">
                 <Link to={"/"} className="flex">
                   <div className="flex">
-                    <img src={Logo} className="w-36" />
+                    <img src={Logo} className="w-32" />
                   </div>
                 </Link>
               </div>
